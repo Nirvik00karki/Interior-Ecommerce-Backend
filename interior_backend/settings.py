@@ -40,7 +40,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'interior-ecommerce-backend.onrender.com']
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "interior-ecommerce-backend.onrender.com"
 
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -50,6 +54,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'apps.accounts',
     'apps.core',
     'apps.company',
@@ -67,9 +72,11 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -174,3 +181,11 @@ SIMPLE_JWT = {
 GOOGLE_CLIENT_ID = env.str("GOOGLE_CLIENT_ID", default="")
 SENDGRID_API_KEY = env.str("SENDGRID_API_KEY", default="")
 DEFAULT_FROM_EMAIL = "karkinirvik@gmail.com"
+
+if "RENDER" in os.environ:
+    # Production (Render)
+    STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+else:
+    # Local development
+    STATIC_ROOT = os.path.join(BASE_DIR, "collected_static")
