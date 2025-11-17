@@ -28,5 +28,5 @@ urlpatterns = [
     path('api/ecommerce/', include('apps.ecommerce.urls')),
     path('api/estimation/', include('apps.estimation.urls')),
     path('api/projects/', include('apps.projects.urls')),
-    path('api/', include('apps.api.urls')),
+    # path('api/', include('apps.api.urls')),
 ]
