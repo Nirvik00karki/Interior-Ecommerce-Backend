@@ -1,6 +1,6 @@
 # API Endpoints Documentation for Frontend Integration
 
-**Base URL**: `http://localhost:8000/` (local) | `https://<your-render-domain>/` (production)
+**Base URL**: `http://localhost:8000/` (local) | `https://interior-ecommerce-backend.onrender.com/` (production)
 
 ---
 
@@ -10,7 +10,7 @@ All endpoints use the base path: `/api/accounts/`
 
 **Complete URLs**: 
 - Local: `http://localhost:8000/api/accounts/`
-- Production: `https://<your-render-domain>/api/accounts/`
+- Production: `https://interior-ecommerce-backend.onrender.com/api/accounts/`
 
 ### 1. **User Registration**
 - **Endpoint**: `POST /api/accounts/register/`
@@ -171,7 +171,7 @@ All endpoints use the base path: `/api/blog/`
 
 **Complete URLs**: 
 - Local: `http://localhost:8000/api/blog/`
-- Production: `https://<your-render-domain>/api/blog/`
+- Production: `https://interior-ecommerce-backend.onrender.com/api/blog/`
 
 ### 1. **Blog Categories - List / Create**
 - **Endpoint**: `GET /api/blog/categories/` | `POST /api/blog/categories/`
@@ -247,7 +247,7 @@ All endpoints use the base path: `/api/cms/`
 
 **Complete URLs**: 
 - Local: `http://localhost:8000/api/cms/`
-- Production: `https://<your-render-domain>/api/cms/`
+- Production: `https://interior-ecommerce-backend.onrender.com/api/cms/`
 
 ### 1. **Pages - List / Create**
 - **Endpoint**: `GET /api/cms/pages/` | `POST /api/cms/pages/`
@@ -336,7 +336,7 @@ All endpoints use the base path: `/api/company/`
 
 **Complete URLs**: 
 - Local: `http://localhost:8000/api/company/`
-- Production: `https://<your-render-domain>/api/company/`
+- Production: `https://interior-ecommerce-backend.onrender.com/api/company/`
 
 ### 1. **Offices - List / Create**
 - **Endpoint**: `GET /api/company/offices/` | `POST /api/company/offices/`
@@ -447,7 +447,7 @@ All endpoints use the base path: `/api/contact/`
 
 **Complete URLs**: 
 - Local: `http://localhost:8000/api/contact/`
-- Production: `https://<your-render-domain>/api/contact/`
+- Production: `https://interior-ecommerce-backend.onrender.com/api/contact/`
 
 ### 1. **Contact Submissions - List / Create**
 - **Endpoint**: `GET /api/contact/contact-submissions/` | `POST /api/contact/contact-submissions/`
@@ -486,7 +486,7 @@ All endpoints use the base path: `/api/ecommerce/`
 
 **Complete URLs**: 
 - Local: `http://localhost:8000/api/ecommerce/`
-- Production: `https://<your-render-domain>/api/ecommerce/`
+- Production: `https://interior-ecommerce-backend.onrender.com/api/ecommerce/`
 
 ### 1. **Product Categories - List / Create**
 - **Endpoint**: `GET /api/ecommerce/product-categories/` | `POST /api/ecommerce/product-categories/`
@@ -551,7 +551,7 @@ All endpoints use the base path: `/api/estimation/`
 
 **Complete URLs**: 
 - Local: `http://localhost:8000/api/estimation/`
-- Production: `https://<your-render-domain>/api/estimation/`
+- Production: `https://interior-ecommerce-backend.onrender.com/api/estimation/`
 
 ### 1. **Estimation Categories - List / Create**
 - **Endpoint**: `GET /api/estimation/estimation-categories/` | `POST /api/estimation/estimation-categories/`
@@ -578,7 +578,7 @@ All endpoints use the base path: `/api/projects/`
 
 **Complete URLs**: 
 - Local: `http://localhost:8000/api/projects/`
-- Production: `https://<your-render-domain>/api/projects/`
+- Production: `https://interior-ecommerce-backend.onrender.com/api/projects/`
 
 ### 1. **Services - List / Create**
 - **Endpoint**: `GET /api/projects/services/` | `POST /api/projects/services/`
