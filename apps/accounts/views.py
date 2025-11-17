@@ -1,4 +1,4 @@
-from rest_framework import status, generics
+from rest_framework import status, generics, permissions
 from rest_framework.response import Response
 from django.db import transaction
 from django.contrib.auth import get_user_model
@@ -20,6 +20,10 @@ from .utils import password_reset_token
 User = get_user_model()
 
 class RegisterView(generics.CreateAPIView):
+    # Ensure registration endpoint does not attempt authentication and is open to anyone.
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -49,6 +53,9 @@ class RegisterView(generics.CreateAPIView):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class EmailTokenObtainPairView(TokenObtainPairView):
+    # Allow login via email without prior authentication
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
     serializer_class = EmailTokenObtainPairSerializer
 
 
@@ -56,6 +63,8 @@ class GoogleAuthView(APIView):
     """
     Login or Signup with Google using ID Token
     """
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         id_token_str = request.data.get("id_token")
@@ -117,6 +126,8 @@ class GoogleAuthView(APIView):
 
 
 class VerifyEmailView(APIView):
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
     def get(self, request):
         uid = request.GET.get("uid")
         token = request.GET.get("token")
@@ -137,6 +148,8 @@ class ResendVerificationEmailView(APIView):
     """
     Allows a user to request a new email verification link.
     """
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request, *args, **kwargs):
         email = request.data.get("email")
@@ -177,6 +190,8 @@ class PasswordResetRequestView(APIView):
     """
     Sends a password reset email if the user exists.
     """
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
     def post(self, request):
         email = request.data.get("email")
 
@@ -201,6 +216,8 @@ class PasswordResetRequestView(APIView):
             status=status.HTTP_200_OK
         )
 class PasswordResetValidateView(APIView):
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
     def get(self, request):
         uid = request.GET.get("uid")
         token = request.GET.get("token")
@@ -218,6 +235,8 @@ class PasswordResetCompleteView(APIView):
     """
     Final step: user provides new password.
     """
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
     def post(self, request):
         uid = request.data.get("uid")
         token = request.data.get("token")

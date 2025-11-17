@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, permissions
 from rest_framework.response import Response
 from django.db import transaction
 from django.views.decorators.cache import cache_page
@@ -16,25 +16,31 @@ CACHE_TIME = 60 * 5  # 5 minutes
 class OfficeViewSet(viewsets.ModelViewSet):
     queryset = Office.objects.all().order_by("id")
     serializer_class = OfficeSerializer
+    # Offices should be publicly readable; editing requires authentication
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
 class TeamMemberViewSet(viewsets.ModelViewSet):
     queryset = TeamMember.objects.select_related("office").order_by("order")
     serializer_class = TeamMemberSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
 @method_decorator(cache_page(CACHE_TIME), name="list")
 class AwardViewSet(viewsets.ModelViewSet):
     queryset = Award.objects.all().order_by("-date_received")
     serializer_class = AwardSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
 class PartnerViewSet(viewsets.ModelViewSet):
     queryset = Partner.objects.all().order_by("name")
     serializer_class = PartnerSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
 @method_decorator(cache_page(CACHE_TIME), name="list")
 class TestimonialViewSet(viewsets.ModelViewSet):
     queryset = Testimonial.objects.all().order_by("id")
     serializer_class = TestimonialSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
