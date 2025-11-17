@@ -12,14 +12,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent  # Points to Interior_Server/
 sys.path.insert(0, str(BASE_DIR))
 
 env = environ.Env()
-environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+# On local dev, read from .env file. On Render/prod, the OS env vars are used directly.
+env_file = os.path.join(BASE_DIR, ".env")
+if os.path.exists(env_file):
+    environ.Env.read_env(env_file)
 
-cloudinary.config(
-    cloud_name= env("CLOUDINARY_CLOUD_NAME"),
-    api_key= env("CLOUDINARY_API_KEY"),
-    api_secret= env("CLOUDINARY_API_SECRET"),
-    secure=True
-)
+# Configure Cloudinary if credentials are present; skip gracefully if not.
+try:
+    cloudinary.config(
+        cloud_name=env("CLOUDINARY_CLOUD_NAME"),
+        api_key=env("CLOUDINARY_API_KEY"),
+        api_secret=env("CLOUDINARY_API_SECRET"),
+        secure=True
+    )
+except Exception as e:
+    # Log warning but continue; Cloudinary is optional at settings import time.
+    print(f"Warning: Cloudinary config skipped ({type(e).__name__}). Set CLOUDINARY_* env vars if needed.")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -162,6 +170,6 @@ SIMPLE_JWT = {
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
 }
 
-GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID")
-SENDGRID_API_KEY = env("SENDGRID_API_KEY")
+GOOGLE_CLIENT_ID = env.str("GOOGLE_CLIENT_ID", default="")
+SENDGRID_API_KEY = env.str("SENDGRID_API_KEY", default="")
 DEFAULT_FROM_EMAIL = "karkinirvik@gmail.com"
