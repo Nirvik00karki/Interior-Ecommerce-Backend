@@ -90,13 +90,41 @@ WSGI_APPLICATION = 'interior_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get("DATABASE_URL"),
-        conn_max_age=600,   # recommended for Render
-        ssl_require=True,
-    )
-}
+# DATABASE configuration
+# Prefer a DATABASE_URL from the environment (Render, Heroku, etc.). If not present,
+# fall back to a local sqlite database for development.
+DATABASE_URL = os.environ.get('DATABASE_URL') or env.str('DATABASE_URL', default='')
+if DATABASE_URL:
+    # Parse the URL into Django DATABASES format, with recommended conn settings
+    parsed_db = dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
+
+    # If parsing didn't produce an ENGINE, fail with a clearer message so deploy logs
+    # point to the root cause (common cause: unencoded '@' in password).
+    if not parsed_db.get('ENGINE'):
+        from django.core.exceptions import ImproperlyConfigured
+        import re
+
+        def _mask_password(url: str) -> str:
+            # mask the password portion for safer logging
+            try:
+                return re.sub(r"(://[^:]+:)([^@]+)@", r"\1****@", url)
+            except Exception:
+                return '***masked***'
+
+        raise ImproperlyConfigured(
+            "Invalid DATABASE_URL: parsing produced no ENGINE. "
+            f"DATABASE_URL={_mask_password(DATABASE_URL)}. "
+            "If your DB password contains special characters (e.g. '@'), URL-encode them (use %40 for '@')."
+        )
+
+    DATABASES = {'default': parsed_db}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
