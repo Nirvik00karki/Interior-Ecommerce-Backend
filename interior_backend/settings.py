@@ -63,10 +63,13 @@ INSTALLED_APPS = [
     'apps.cms',
     'apps.contact',
     'apps.estimation',
-    'apps.ecommerce',
+    'apps.catalog',
     'apps.api',
+    'apps.order',
+    'apps.coupons',
     'rest_framework',
     "rest_framework_simplejwt",
+    'django_filters',
 ]
 
 MIDDLEWARE = [

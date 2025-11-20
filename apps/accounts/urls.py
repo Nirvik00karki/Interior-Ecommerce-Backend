@@ -3,7 +3,8 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 from .views import (EmailTokenObtainPairView, RegisterView, GoogleAuthView, VerifyEmailView, ResendVerificationEmailView
-                    , PasswordResetRequestView, PasswordResetValidateView, PasswordResetCompleteView)
+                    , PasswordResetRequestView, PasswordResetValidateView, PasswordResetCompleteView, ShippingAddressViewSet
+                    , ShippingZoneViewSet)
 
 urlpatterns = [
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
@@ -15,4 +16,6 @@ urlpatterns = [
     path("password-reset/request/", PasswordResetRequestView.as_view(), name="password_reset_request"),
     path("password-reset/validate/", PasswordResetValidateView.as_view(), name="password_reset_validate"),
     path("password-reset/complete/", PasswordResetCompleteView.as_view(), name="password_reset_complete"),
+    path("shipping-addresses/", ShippingAddressViewSet.as_view({'get': 'list', 'post': 'create'}), name="shipping_addresses"),
+    path("shipping-cost/", ShippingZoneViewSet.as_view({'get': 'user_shipping_cost'}), name="shipping_cost"),
 ]

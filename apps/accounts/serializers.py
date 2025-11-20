@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from .models import ShippingAddress, ShippingZone
 
 User = get_user_model()
 
@@ -47,3 +48,24 @@ class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
         attrs["username"] = email
 
         return super().validate(attrs)
+
+
+class ShippingAddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShippingAddress
+        fields = [
+            "id",
+            "full_name",
+            "phone",
+            "address_line1",
+            "address_line2",
+            "zone",
+            "state",
+            "postal_code",
+            "country",
+        ]
+
+class ShippingZoneSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShippingZone
+        fields = "__all__"

@@ -1,10 +1,11 @@
-from rest_framework import status, generics, permissions
+from rest_framework import status, generics, permissions, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db import transaction
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import EmailTokenObtainPairSerializer
+from .serializers import EmailTokenObtainPairSerializer, ShippingAddressSerializer, ShippingZoneSerializer
 from rest_framework.views import APIView
 from django.conf import settings
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -15,6 +16,7 @@ from rest_framework.views import APIView
 from .email import send_verification_email
 from .email import send_password_reset_email
 from .utils import password_reset_token
+from .models import ShippingAddress, ShippingZone
 
 
 User = get_user_model()
@@ -265,3 +267,38 @@ class PasswordResetCompleteView(APIView):
             {"message": "Password has been reset successfully."},
             status=status.HTTP_200_OK
         )
+
+class ShippingAddressViewSet(viewsets.ModelViewSet):
+    serializer_class = ShippingAddressSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return ShippingAddress.objects.filter(user=self.request.user).order_by("-id")
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class ShippingZoneViewSet(viewsets.ModelViewSet):
+    queryset = ShippingZone.objects.all()
+    serializer_class = ShippingZoneSerializer
+    permission_classes = [permissions.AllowAny]
+
+    @action(detail=False, methods=["GET"], permission_classes=[permissions.IsAuthenticated])
+    def user_shipping_cost(self, request):
+        user = request.user
+
+        # Assuming user.shipping_addresses.first().zone.cost
+        address = user.shipping_addresses.first()
+        if not address:
+            return Response(
+                {"detail": "No shipping address found for this user."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        if not address.zone:
+            return Response(
+                {"detail": "Shipping zone is missing for this address."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        return Response({"shipping_cost": address.zone.cost})

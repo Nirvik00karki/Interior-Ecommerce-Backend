@@ -25,8 +25,11 @@ urlpatterns = [
     path('api/cms/', include('apps.cms.urls')),
     path('api/company/', include('apps.company.urls')),
     path('api/contact/', include('apps.contact.urls')),
-    path('api/ecommerce/', include('apps.ecommerce.urls')),
+    path('api/catalog/', include('apps.catalog.urls')),
     path('api/estimation/', include('apps.estimation.urls')),
     path('api/projects/', include('apps.projects.urls')),
-    # path('api/', include('apps.api.urls')),
+    path('api/', include('apps.order.urls')),
+    path("api/admin/", include("apps.order.admin_urls")),
+    path("api/", include("apps.coupons.urls")),
+
 ]
