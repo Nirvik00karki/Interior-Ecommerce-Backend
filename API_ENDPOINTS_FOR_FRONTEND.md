@@ -4,664 +4,186 @@
 
 ---
 
-## Authentication Endpoints
+This document lists the current API endpoints defined in the backend and their expected behavior. URLs map to Django REST Framework viewsets and views. Protected endpoints require a JWT access token in the `Authorization` header: `Authorization: Bearer <access_token>`.
 
-All endpoints use the base path: `/api/accounts/`
+## Top-level route map
 
-**Complete URLs**: 
+- `POST /api/accounts/` → accounts endpoints (see Authentication section)
+- `GET/POST/PUT/DELETE /api/blog/...` → blog app
+- `GET/POST/PUT/DELETE /api/cms/...` → cms app
+- `GET/POST/PUT/DELETE /api/company/...` → company app
+- `GET/POST/PUT/DELETE /api/contact/...` → contact app
+- `GET/POST/PUT/DELETE /api/catalog/...` → catalog (products, variants, inventory)
+- `GET/POST/PUT/DELETE /api/estimation/...` → estimation app
+- `GET/POST/PUT/DELETE /api/projects/...` → projects app
+- `GET/POST/PUT/DELETE /api/...` → order & coupons (registered at top-level `api/`)
+- `GET/POST/PUT/DELETE /api/admin/...` → admin order endpoints
+
+---
+
+**Notes about pluralization & router behavior**: Many endpoints are registered via DRF routers and therefore follow the standard patterns: `GET /resource/` (list), `POST /resource/` (create), `GET /resource/{id}/` (retrieve), `PUT /resource/{id}/` (update), `PATCH /resource/{id}/` (partial update), `DELETE /resource/{id}/` (delete).
+
+---
+
+## Authentication / Accounts (`/api/accounts/`)
+
+Base URLs:
 - Local: `http://localhost:8000/api/accounts/`
 - Production: `https://interior-ecommerce-backend.onrender.com/api/accounts/`
 
-### 1. **User Registration**
-- **Endpoint**: `POST /api/accounts/register/`
-- **Full URL**: `http://localhost:8000/api/accounts/register/`
-- **Description**: Register a new user
-- **Request Body**:
-  ```json
-  {
-    "email": "user@example.com",
-    "password": "securepassword123",
-    "password2": "securepassword123",
-    "first_name": "John",
-    "last_name": "Doe"
-  }
-  ```
-- **Response**: User created, returns token
-- **Status**: 201 Created
+Endpoints:
+- `POST token/refresh/` — `POST /api/accounts/token/refresh/`
+  - Request: `{ "refresh": "<refresh_token>" }`
+  - Response: `{ "access": "<access_token>" }`
+
+- `POST register/` — `POST /api/accounts/register/`
+  - Registers a new user. Request should include `email`, `password`, `first_name`, `last_name` (see serializer expectations).
+  - New users are created with `is_active=False`; a verification email is sent. Response: 201 Created with `user` data and a message.
+
+- `POST login/` — `POST /api/accounts/login/`
+  - Login using email and password. Returns JWT `access` and `refresh` tokens on success.
+
+- `POST google/` — `POST /api/accounts/google/`
+  - Sign in/up using Google ID token provided in the body as `id_token`.
+  - Response includes `tokens` (`access` and `refresh`), `user` info, and `is_new_user` flag.
+
+- `GET verify-email/` — `GET /api/accounts/verify-email/?uid=<uid>&token=<token>`
+  - Verifies an email link. Uses query params `uid` and `token`. On success marks `is_active=True`.
+
+- `POST resend-verification/` — `POST /api/accounts/resend-verification/`
+  - Request body: `{ "email": "user@example.com" }`. Sends a new verification email if the account exists and is not active. Returns 200 with a message (does not reveal account existence).
+
+- `POST password-reset/request/` — `POST /api/accounts/password-reset/request/`
+  - Request body: `{ "email": "user@example.com" }`. Sends a password reset email if the account exists. Returns 200.
+
+- `GET password-reset/validate/?uid=<uid>&token=<token>` — `GET /api/accounts/password-reset/validate/`
+  - Validates a password reset token, returns `{ "valid": true }` or `400`.
+
+- `POST password-reset/complete/` — `POST /api/accounts/password-reset/complete/`
+  - Request body: `{ "uid": "<uid>", "token": "<token>", "password": "<new_password>" }`. Completes the reset and sets the new password. Returns 200 on success.
+
+- `GET/POST shipping-addresses/` — `GET /api/accounts/shipping-addresses/`, `POST /api/accounts/shipping-addresses/`
+  - Authenticated users only. `GET` lists the user's addresses; `POST` creates a new shipping address for the authenticated user.
+
+- `GET shipping-cost/` — `GET /api/accounts/shipping-cost/`
+  - Authenticated-only action that returns the shipping cost for the user's first shipping address (calls `user_shipping_cost`).
+
+Authentication headers:
+- Protected endpoints require: `Authorization: Bearer <access_token>`
 
 ---
 
-### 2. **User Login**
-- **Endpoint**: `POST /api/accounts/login/`
-- **Full URL**: `http://localhost:8000/api/accounts/login/`
-- **Description**: Login with email and password
-- **Request Body**:
-  ```json
-  {
-    "email": "user@example.com",
-    "password": "securepassword123"
-  }
-  ```
-- **Response**: Returns access & refresh tokens
-  ```json
-  {
-    "access": "eyJ0eXAiOiJKV1QiLCJhbGc...",
-    "refresh": "eyJ0eXAiOiJKV1QiLCJhbGc..."
-  }
-  ```
-- **Status**: 200 OK
+## Catalog (`/api/catalog/`)
+
+Base:
+- `http://localhost:8000/api/catalog/`
+
+Registered resources (via router):
+- `categories` — `GET/POST /api/catalog/categories/` and `GET/PUT/PATCH/DELETE /api/catalog/categories/{id}/`
+- `products` — `GET/POST /api/catalog/products/` and detail
+- `product-images` — `GET/POST /api/catalog/product-images/` and detail
+- `variants` — `GET/POST /api/catalog/variants/` and detail
+- `attributes` — `GET/POST /api/catalog/attributes/` and detail
+- `inventory` — `GET/POST /api/catalog/inventory/` and detail
+
+Querying & filters:
+- `products` supports `search` (name, description), `category`, `is_active`, ordering (`created_at`, `updated_at`) and pagination.
+- `inventory` supports filtering on `variant__product` and `variant` and searching by `variant__sku`.
+
+Permissions:
+- Most catalog endpoints use the `IsAdminOrReadOnly` permission: admin users can create/update/delete; public can list/retrieve.
 
 ---
 
-### 3. **Refresh Access Token**
-- **Endpoint**: `POST /api/accounts/token/refresh/`
-- **Full URL**: `http://localhost:8000/api/accounts/token/refresh/`
-- **Description**: Get a new access token using refresh token
-- **Request Body**:
-  ```json
-  {
-    "refresh": "eyJ0eXAiOiJKV1QiLCJhbGc..."
-  }
-  ```
-- **Response**: New access token
-  ```json
-  {
-    "access": "eyJ0eXAiOiJKV1QiLCJhbGc..."
-  }
-  ```
-- **Status**: 200 OK
+## Blog (`/api/blog/`)
+
+Resources:
+- `categories` — `/api/blog/categories/`
+- `posts` — `/api/blog/posts/`
+
+Query params:
+- `search`, `category`, `page` are supported for listing posts (see viewset filters).
 
 ---
 
-### 4. **Google Authentication**
-- **Endpoint**: `POST /api/accounts/google/`
-- **Full URL**: `http://localhost:8000/api/accounts/google/`
-- **Description**: Authenticate using Google OAuth token
-- **Request Body**:
-  ```json
-  {
-    "id_token": "<google_id_token>"
-  }
-  ```
-- **Response**: Returns access & refresh tokens or creates new user
-- **Status**: 200 OK / 201 Created
+## CMS (`/api/cms/`)
+
+Resources:
+- `pages`, `hero-slides`, `methodologies`, `faq` — standard list/create/detail routes at `/api/cms/<resource>/`
 
 ---
 
-### 5. **Verify Email**
-- **Endpoint**: `POST /api/accounts/verify-email/`
-- **Full URL**: `http://localhost:8000/api/accounts/verify-email/`
-- **Description**: Verify user email with OTP/token
-- **Request Body**:
-  ```json
-  {
-    "otp": "123456"
-  }
-  ```
-- **Response**: Email verified confirmation
-- **Status**: 200 OK
+## Company (`/api/company/`)
+
+Resources:
+- `offices`, `team-members`, `awards`, `partners`, `testimonials` — standard router routes.
 
 ---
 
-### 6. **Resend Verification Email**
-- **Endpoint**: `POST /api/accounts/resend-verification/`
-- **Full URL**: `http://localhost:8000/api/accounts/resend-verification/`
-- **Description**: Resend verification email
-- **Request Body**:
-  ```json
-  {
-    "email": "user@example.com"
-  }
-  ```
-- **Response**: Verification email sent
-- **Status**: 200 OK
+## Contact (`/api/contact/`)
+
+Resources:
+- `contact-submissions` — `/api/contact/contact-submissions/` (list/create and detail). Uses DRF router viewset.
 
 ---
 
-### 7. **Password Reset - Request**
-- **Endpoint**: `POST /api/accounts/password-reset/request/`
-- **Full URL**: `http://localhost:8000/api/accounts/password-reset/request/`
-- **Description**: Request password reset
-- **Request Body**:
-  ```json
-  {
-    "email": "user@example.com"
-  }
-  ```
-- **Response**: Reset email sent
-- **Status**: 200 OK
+## Estimation (`/api/estimation/`)
+
+Resources:
+- `estimation-categories` — `/api/estimation/estimation-categories/` (list/create and detail).
 
 ---
 
-### 8. **Password Reset - Validate Token**
-- **Endpoint**: `POST /api/accounts/password-reset/validate/`
-- **Full URL**: `http://localhost:8000/api/accounts/password-reset/validate/`
-- **Description**: Validate password reset token
-- **Request Body**:
-  ```json
-  {
-    "token": "reset_token_from_email"
-  }
-  ```
-- **Response**: Token validity confirmation
-- **Status**: 200 OK
+## Projects (`/api/projects/`)
+
+Resources:
+- `services` — `/api/projects/services/`
+- `projects` — `/api/projects/projects/`
+
+Querying:
+- `projects` supports `search`, `service`, `status`, and pagination.
 
 ---
 
-### 9. **Password Reset - Complete**
-- **Endpoint**: `POST /api/accounts/password-reset/complete/`
-- **Full URL**: `http://localhost:8000/api/accounts/password-reset/complete/`
-- **Description**: Complete password reset with new password
-- **Request Body**:
-  ```json
-  {
-    "token": "reset_token_from_email",
-    "new_password": "newsecurepassword123",
-    "new_password2": "newsecurepassword123"
-  }
-  ```
-- **Response**: Password updated
-- **Status**: 200 OK
+## Orders & Payments (`/api/`)
+
+Order and payment endpoints are mounted at the top-level `api/` path (i.e. `GET /api/orders/`). Registered viewsets:
+- `orders` — `/api/orders/`
+  - Standard list/create/detail behavior.
+  - Permissions: authenticated users; staff can list all orders. Users can only access their own orders.
+  - Custom actions:
+    - `POST /api/orders/apply-coupon/` (detail=False)
+      - Body: `{ "code": "COUPONCODE", "order_total": <number> }` — validates coupon and returns discounted total and discount amount.
+    - `POST /api/orders/{id}/cancel/` (detail=True)
+      - Cancels a pending order, restores inventory, and sets status to `cancelled`. Requires authentication.
+- `payments` — `/api/payments/` (read-only for admin users)
+
+Admin order endpoints:
+- `/api/admin/orders/` — admin-specific order management (registered in `apps.order.admin_urls`).
 
 ---
 
-## Blog Endpoints
+## Coupons (`/api/`)
 
-All endpoints use the base path: `/api/blog/`
+Registered resources at top-level `api/`:
+- `coupons` — `/api/coupons/` (admin full CRUD; read-only for non-admins)
+- `coupon-usage` — `/api/coupon-usage/` (read-only history, admin-access)
 
-**Complete URLs**: 
-- Local: `http://localhost:8000/api/blog/`
-- Production: `https://interior-ecommerce-backend.onrender.com/api/blog/`
-
-### 1. **Blog Categories - List / Create**
-- **Endpoint**: `GET /api/blog/categories/` | `POST /api/blog/categories/`
-- **Full URLs**: 
-  - List: `http://localhost:8000/api/blog/categories/`
-  - Create: `http://localhost:8000/api/blog/categories/`
-- **Description**: List all blog categories or create new
-- **Query Parameters (GET)**:
-  - `search`: Search by name
-  - `page`: Pagination
-- **Request Body (POST)**:
-  ```json
-  {
-    "name": "Technology",
-    "slug": "technology",
-    "description": "Tech related blogs"
-  }
-  ```
-- **Response**: List of categories or created category
-- **Status**: 200 OK / 201 Created
+Special behaviors:
+- `CouponViewSet` protects deletion if there are usages (cannot delete coupons that have been used).
 
 ---
 
-### 2. **Blog Categories - Retrieve / Update / Delete**
-- **Endpoint**: `GET /api/blog/categories/{id}/` | `PUT /api/blog/categories/{id}/` | `DELETE /api/blog/categories/{id}/`
-- **Full URLs**: 
-  - Get: `http://localhost:8000/api/blog/categories/1/`
-  - Update: `http://localhost:8000/api/blog/categories/1/`
-  - Delete: `http://localhost:8000/api/blog/categories/1/`
-- **Description**: Get, update, or delete a specific blog category
+## Common headers & auth
+
+- Protected endpoints require `Authorization: Bearer <access_token>`.
+- For JSON requests, include `Content-Type: application/json`.
 
 ---
 
-### 3. **Blog Posts - List / Create**
-- **Endpoint**: `GET /api/blog/posts/` | `POST /api/blog/posts/`
-- **Full URLs**: 
-  - List: `http://localhost:8000/api/blog/posts/`
-  - Create: `http://localhost:8000/api/blog/posts/`
-- **Description**: List all blog posts or create new
-- **Query Parameters (GET)**:
-  - `search`: Search by title or content
-  - `category`: Filter by category ID
-  - `page`: Pagination
-- **Request Body (POST)**:
-  ```json
-  {
-    "title": "Interior Design Trends 2025",
-    "slug": "interior-design-trends-2025",
-    "content": "Detailed blog content here...",
-    "category": 1,
-    "featured_image": "<cloudinary_url_or_file>",
-    "is_published": true
-  }
-  ```
-- **Response**: List of posts or created post
-- **Status**: 200 OK / 201 Created
+If you want, I can:
+- Add example request/response payloads for any specific endpoint.
+- Generate a compact JSON summary of endpoints the frontend can consume.
+- Run a quick script to list all routes programmatically from Django (requires environment).
 
----
-
-### 4. **Blog Posts - Retrieve / Update / Delete**
-- **Endpoint**: `GET /api/blog/posts/{id}/` | `PUT /api/blog/posts/{id}/` | `DELETE /api/blog/posts/{id}/`
-- **Full URLs**: 
-  - Get: `http://localhost:8000/api/blog/posts/1/`
-  - Update: `http://localhost:8000/api/blog/posts/1/`
-  - Delete: `http://localhost:8000/api/blog/posts/1/`
-- **Description**: Get, update, or delete a specific blog post
-
----
-
-## CMS Endpoints
-
-All endpoints use the base path: `/api/cms/`
-
-**Complete URLs**: 
-- Local: `http://localhost:8000/api/cms/`
-- Production: `https://interior-ecommerce-backend.onrender.com/api/cms/`
-
-### 1. **Pages - List / Create**
-- **Endpoint**: `GET /api/cms/pages/` | `POST /api/cms/pages/`
-- **Full URLs**: 
-  - List: `http://localhost:8000/api/cms/pages/`
-  - Create: `http://localhost:8000/api/cms/pages/`
-- **Description**: List all CMS pages or create new
-- **Request Body (POST)**:
-  ```json
-  {
-    "title": "About Us",
-    "slug": "about-us",
-    "content": "Page content here...",
-    "is_published": true
-  }
-  ```
-- **Response**: List of pages or created page
-- **Status**: 200 OK / 201 Created
-
----
-
-### 2. **Hero Slides - List / Create**
-- **Endpoint**: `GET /api/cms/hero-slides/` | `POST /api/cms/hero-slides/`
-- **Full URLs**: 
-  - List: `http://localhost:8000/api/cms/hero-slides/`
-  - Create: `http://localhost:8000/api/cms/hero-slides/`
-- **Description**: Manage hero/banner slides
-- **Request Body (POST)**:
-  ```json
-  {
-    "title": "Welcome to Our Interior Design",
-    "subtitle": "Transform Your Space",
-    "image": "<cloudinary_url_or_file>",
-    "order": 1,
-    "is_active": true
-  }
-  ```
-- **Response**: List of slides or created slide
-- **Status**: 200 OK / 201 Created
-
----
-
-### 3. **Methodologies - List / Create**
-- **Endpoint**: `GET /api/cms/methodologies/` | `POST /api/cms/methodologies/`
-- **Full URLs**: 
-  - List: `http://localhost:8000/api/cms/methodologies/`
-  - Create: `http://localhost:8000/api/cms/methodologies/`
-- **Description**: List design methodologies
-- **Request Body (POST)**:
-  ```json
-  {
-    "title": "Client Consultation",
-    "description": "Detailed methodology description",
-    "icon": "<cloudinary_url_or_file>",
-    "order": 1
-  }
-  ```
-- **Response**: List of methodologies or created methodology
-- **Status**: 200 OK / 201 Created
-
----
-
-### 4. **FAQ - List / Create**
-- **Endpoint**: `GET /api/cms/faq/` | `POST /api/cms/faq/`
-- **Full URLs**: 
-  - List: `http://localhost:8000/api/cms/faq/`
-  - Create: `http://localhost:8000/api/cms/faq/`
-- **Description**: Manage FAQs
-- **Request Body (POST)**:
-  ```json
-  {
-    "question": "What is your design process?",
-    "answer": "We follow a 5-step process...",
-    "order": 1,
-    "is_active": true
-  }
-  ```
-- **Response**: List of FAQs or created FAQ
-- **Status**: 200 OK / 201 Created
-
----
-
-## Company Endpoints
-
-All endpoints use the base path: `/api/company/`
-
-**Complete URLs**: 
-- Local: `http://localhost:8000/api/company/`
-- Production: `https://interior-ecommerce-backend.onrender.com/api/company/`
-
-### 1. **Offices - List / Create**
-- **Endpoint**: `GET /api/company/offices/` | `POST /api/company/offices/`
-- **Full URLs**: 
-  - List: `http://localhost:8000/api/company/offices/`
-  - Create: `http://localhost:8000/api/company/offices/`
-- **Description**: List company offices
-- **Request Body (POST)**:
-  ```json
-  {
-    "name": "New York Office",
-    "address": "123 Main St, NY",
-    "phone": "+1-555-1234",
-    "email": "ny@company.com",
-    "coordinates": "40.7128,-74.0060"
-  }
-  ```
-- **Response**: List of offices or created office
-- **Status**: 200 OK / 201 Created
-
----
-
-### 2. **Team Members - List / Create**
-- **Endpoint**: `GET /api/company/team-members/` | `POST /api/company/team-members/`
-- **Full URLs**: 
-  - List: `http://localhost:8000/api/company/team-members/`
-  - Create: `http://localhost:8000/api/company/team-members/`
-- **Description**: List team members
-- **Request Body (POST)**:
-  ```json
-  {
-    "name": "John Smith",
-    "title": "Senior Designer",
-    "bio": "Experienced interior designer...",
-    "photo": "<cloudinary_url_or_file>",
-    "email": "john@company.com"
-  }
-  ```
-- **Response**: List of team members or created member
-- **Status**: 200 OK / 201 Created
-
----
-
-### 3. **Awards - List / Create**
-- **Endpoint**: `GET /api/company/awards/` | `POST /api/company/awards/`
-- **Full URLs**: 
-  - List: `http://localhost:8000/api/company/awards/`
-  - Create: `http://localhost:8000/api/company/awards/`
-- **Description**: List company awards
-- **Request Body (POST)**:
-  ```json
-  {
-    "title": "Best Interior Design 2024",
-    "year": 2024,
-    "description": "Award description",
-    "certificate": "<cloudinary_url_or_file>"
-  }
-  ```
-- **Response**: List of awards or created award
-- **Status**: 200 OK / 201 Created
-
----
-
-### 4. **Partners - List / Create**
-- **Endpoint**: `GET /api/company/partners/` | `POST /api/company/partners/`
-- **Full URLs**: 
-  - List: `http://localhost:8000/api/company/partners/`
-  - Create: `http://localhost:8000/api/company/partners/`
-- **Description**: List company partners
-- **Request Body (POST)**:
-  ```json
-  {
-    "name": "Furniture Co.",
-    "logo": "<cloudinary_url_or_file>",
-    "website": "https://furniture.com",
-    "description": "Partner description"
-  }
-  ```
-- **Response**: List of partners or created partner
-- **Status**: 200 OK / 201 Created
-
----
-
-### 5. **Testimonials - List / Create**
-- **Endpoint**: `GET /api/company/testimonials/` | `POST /api/company/testimonials/`
-- **Full URLs**: 
-  - List: `http://localhost:8000/api/company/testimonials/`
-  - Create: `http://localhost:8000/api/company/testimonials/`
-- **Description**: List client testimonials
-- **Request Body (POST)**:
-  ```json
-  {
-    "client_name": "Jane Doe",
-    "client_title": "Homeowner",
-    "testimonial_text": "Amazing service and design!",
-    "rating": 5,
-    "photo": "<cloudinary_url_or_file>"
-  }
-  ```
-- **Response**: List of testimonials or created testimonial
-- **Status**: 200 OK / 201 Created
-
----
-
-## Contact Endpoints
-
-All endpoints use the base path: `/api/contact/`
-
-**Complete URLs**: 
-- Local: `http://localhost:8000/api/contact/`
-- Production: `https://interior-ecommerce-backend.onrender.com/api/contact/`
-
-### 1. **Contact Submissions - List / Create**
-- **Endpoint**: `GET /api/contact/contact-submissions/` | `POST /api/contact/contact-submissions/`
-- **Full URLs**: 
-  - List: `http://localhost:8000/api/contact/contact-submissions/`
-  - Create: `http://localhost:8000/api/contact/contact-submissions/`
-- **Description**: Submit or view contact form submissions
-- **Request Body (POST)**:
-  ```json
-  {
-    "name": "John Doe",
-    "email": "john@example.com",
-    "phone": "+1-555-1234",
-    "subject": "Project Inquiry",
-    "message": "I'm interested in your services..."
-  }
-  ```
-- **Response**: Submission created / List of submissions
-- **Status**: 200 OK / 201 Created
-
----
-
-### 2. **Contact Submissions - Retrieve / Update / Delete**
-- **Endpoint**: `GET /api/contact/contact-submissions/{id}/` | `PUT /api/contact/contact-submissions/{id}/` | `DELETE /api/contact/contact-submissions/{id}/`
-- **Full URLs**: 
-  - Get: `http://localhost:8000/api/contact/contact-submissions/1/`
-  - Update: `http://localhost:8000/api/contact/contact-submissions/1/`
-  - Delete: `http://localhost:8000/api/contact/contact-submissions/1/`
-- **Description**: Get, update, or delete a specific submission
-
----
-
-## E-Commerce Endpoints
-
-All endpoints use the base path: `/api/ecommerce/`
-
-**Complete URLs**: 
-- Local: `http://localhost:8000/api/ecommerce/`
-- Production: `https://interior-ecommerce-backend.onrender.com/api/ecommerce/`
-
-### 1. **Product Categories - List / Create**
-- **Endpoint**: `GET /api/ecommerce/product-categories/` | `POST /api/ecommerce/product-categories/`
-- **Full URLs**: 
-  - List: `http://localhost:8000/api/ecommerce/product-categories/`
-  - Create: `http://localhost:8000/api/ecommerce/product-categories/`
-- **Description**: List product categories
-- **Request Body (POST)**:
-  ```json
-  {
-    "name": "Furniture",
-    "slug": "furniture",
-    "description": "All furniture products"
-  }
-  ```
-- **Response**: List of categories or created category
-- **Status**: 200 OK / 201 Created
-
----
-
-### 2. **Products - List / Create**
-- **Endpoint**: `GET /api/ecommerce/products/` | `POST /api/ecommerce/products/`
-- **Full URLs**: 
-  - List: `http://localhost:8000/api/ecommerce/products/`
-  - Create: `http://localhost:8000/api/ecommerce/products/`
-- **Description**: List all products
-- **Query Parameters (GET)**:
-  - `search`: Search by name
-  - `category`: Filter by category ID
-  - `min_price`, `max_price`: Price range filter
-  - `page`: Pagination
-- **Request Body (POST)**:
-  ```json
-  {
-    "name": "Modern Sofa",
-    "slug": "modern-sofa",
-    "description": "Comfortable modern sofa",
-    "category": 1,
-    "price": 1299.99,
-    "quantity": 50,
-    "image": "<cloudinary_url_or_file>"
-  }
-  ```
-- **Response**: List of products or created product
-- **Status**: 200 OK / 201 Created
-
----
-
-### 3. **Products - Retrieve / Update / Delete**
-- **Endpoint**: `GET /api/ecommerce/products/{id}/` | `PUT /api/ecommerce/products/{id}/` | `DELETE /api/ecommerce/products/{id}/`
-- **Full URLs**: 
-  - Get: `http://localhost:8000/api/ecommerce/products/1/`
-  - Update: `http://localhost:8000/api/ecommerce/products/1/`
-  - Delete: `http://localhost:8000/api/ecommerce/products/1/`
-- **Description**: Get, update, or delete a specific product
-
----
-
-## Estimation Endpoints
-
-All endpoints use the base path: `/api/estimation/`
-
-**Complete URLs**: 
-- Local: `http://localhost:8000/api/estimation/`
-- Production: `https://interior-ecommerce-backend.onrender.com/api/estimation/`
-
-### 1. **Estimation Categories - List / Create**
-- **Endpoint**: `GET /api/estimation/estimation-categories/` | `POST /api/estimation/estimation-categories/`
-- **Full URLs**: 
-  - List: `http://localhost:8000/api/estimation/estimation-categories/`
-  - Create: `http://localhost:8000/api/estimation/estimation-categories/`
-- **Description**: List estimation/service categories
-- **Request Body (POST)**:
-  ```json
-  {
-    "name": "Residential Design",
-    "description": "For home interior design projects",
-    "base_cost": 500
-  }
-  ```
-- **Response**: List of categories or created category
-- **Status**: 200 OK / 201 Created
-
----
-
-## Projects Endpoints
-
-All endpoints use the base path: `/api/projects/`
-
-**Complete URLs**: 
-- Local: `http://localhost:8000/api/projects/`
-- Production: `https://interior-ecommerce-backend.onrender.com/api/projects/`
-
-### 1. **Services - List / Create**
-- **Endpoint**: `GET /api/projects/services/` | `POST /api/projects/services/`
-- **Full URLs**: 
-  - List: `http://localhost:8000/api/projects/services/`
-  - Create: `http://localhost:8000/api/projects/services/`
-- **Description**: List services offered
-- **Request Body (POST)**:
-  ```json
-  {
-    "name": "Full Home Renovation",
-    "slug": "full-home-renovation",
-    "description": "Complete home renovation service",
-    "cover_image": "<cloudinary_url_or_file>"
-  }
-  ```
-- **Response**: List of services or created service
-- **Status**: 200 OK / 201 Created
-
----
-
-### 2. **Services - Retrieve / Update / Delete**
-- **Endpoint**: `GET /api/projects/services/{id}/` | `PUT /api/projects/services/{id}/` | `DELETE /api/projects/services/{id}/`
-- **Full URLs**: 
-  - Get: `http://localhost:8000/api/projects/services/1/`
-  - Update: `http://localhost:8000/api/projects/services/1/`
-  - Delete: `http://localhost:8000/api/projects/services/1/`
-- **Description**: Get, update, or delete a specific service
-
----
-
-### 3. **Projects - List / Create**
-- **Endpoint**: `GET /api/projects/projects/` | `POST /api/projects/projects/`
-- **Full URLs**: 
-  - List: `http://localhost:8000/api/projects/projects/`
-  - Create: `http://localhost:8000/api/projects/projects/`
-- **Description**: List all projects
-- **Query Parameters (GET)**:
-  - `search`: Search by title
-  - `service`: Filter by service ID
-  - `status`: Filter by status (Completed, Ongoing, Future)
-  - `page`: Pagination
-- **Request Body (POST)**:
-  ```json
-  {
-    "title": "Modern Apartment Redesign",
-    "slug": "modern-apartment-redesign",
-    "description": "Complete apartment redesign project",
-    "cover_image": "<cloudinary_url_or_file>",
-    "gallery_images": ["url1", "url2", "url3"],
-    "location": "Brooklyn, NY",
-    "date_completed": "2024-12-15",
-    "status": "Completed",
-    "is_featured": true,
-    "service": 1,
-    "team_ids": [1, 2, 3]
-  }
-  ```
-- **Response**: List of projects or created project
-- **Status**: 200 OK / 201 Created
-
----
-
-### 4. **Projects - Retrieve / Update / Delete**
-- **Endpoint**: `GET /api/projects/projects/{id}/` | `PUT /api/projects/projects/{id}/` | `DELETE /api/projects/projects/{id}/`
-- **Full URLs**: 
-  - Get: `http://localhost:8000/api/projects/projects/1/`
-  - Update: `http://localhost:8000/api/projects/projects/1/`
-  - Delete: `http://localhost:8000/api/projects/projects/1/`
-- **Description**: Get, update, or delete a specific project
-
----
-
-## Authentication Headers
-
-For all **protected endpoints** (POST, PUT, DELETE), include:
-
-```
-Authorization: Bearer <access_token>
-```
-
-**Example**:
-```
-GET /api/projects/projects/
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...
-```
+Next step: mark the todo steps for verification and finalize the doc. If you'd like extra examples or OpenAPI export, tell me which endpoints to prioritize.

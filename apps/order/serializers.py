@@ -4,7 +4,7 @@ from apps.catalog.models import ProductVariant, Inventory
 from .models import Order, OrderItem, ShippingAddress, Payment
 from decimal import Decimal
 from apps.accounts.serializers import ShippingAddressSerializer
-from apps.coupons.services.coupon_service import CouponService
+from apps.catalog.services.coupon_service import CouponService
 from apps.coupons.models import CouponUsage
 
 class OrderItemSerializer(serializers.ModelSerializer):

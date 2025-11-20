@@ -11,7 +11,7 @@ from .serializers import (
 )
 from apps.accounts.models import ShippingAddress
 from apps.accounts.serializers import ShippingAddressSerializer
-from apps.coupons.services.coupon_service import CouponService
+from apps.catalog.services.coupon_service import CouponService
 from .serializers import ApplyCouponSerializer
 
 class IsOwnerOrAdmin(permissions.BasePermission):
