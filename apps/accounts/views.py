@@ -5,7 +5,8 @@ from django.db import transaction
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import EmailTokenObtainPairSerializer, ShippingAddressSerializer, ShippingZoneSerializer
+from .serializers import (EmailTokenObtainPairSerializer, ShippingAddressSerializer
+                          , ShippingZoneSerializer, AdminCreateUserSerializer)
 from rest_framework.views import APIView
 from django.conf import settings
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -302,3 +303,10 @@ class ShippingZoneViewSet(viewsets.ModelViewSet):
             )
 
         return Response({"shipping_cost": address.zone.cost})
+    
+class AdminUserCreateView(generics.CreateAPIView):
+    serializer_class = AdminCreateUserSerializer
+    permission_classes = [permissions.IsAdminUser | permissions.IsSuperUser]
+
+    def get_queryset(self):
+        return User.objects.none()

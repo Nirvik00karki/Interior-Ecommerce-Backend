@@ -69,3 +69,30 @@ class ShippingZoneSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShippingZone
         fields = "__all__"
+        
+class AdminCreateUserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ["id", "email", "first_name", "last_name", "password", "is_superuser", "is_staff"]
+        read_only_fields = ["is_superuser", "is_staff"]
+
+    def validate(self, data):
+        request_user = self.context["request"].user
+        if not request_user.is_staff:
+            raise serializers.ValidationError("Only admin users can create staff accounts.")
+        return data
+
+    def create(self, validated_data):
+        password = validated_data.pop("password")
+
+        user = User.objects.create(
+            **validated_data,
+            is_staff=True,
+            is_superuser=False,
+            is_active=True,
+        )
+        user.set_password(password)
+        user.save()
+        return user
