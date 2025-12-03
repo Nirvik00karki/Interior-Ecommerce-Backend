@@ -18,7 +18,7 @@ from .email import send_verification_email
 from .email import send_password_reset_email
 from .utils import password_reset_token
 from .models import ShippingAddress, ShippingZone
-
+from .permissions import IsAdminOrSuperUser
 
 User = get_user_model()
 
@@ -306,7 +306,7 @@ class ShippingZoneViewSet(viewsets.ModelViewSet):
     
 class AdminUserCreateView(generics.CreateAPIView):
     serializer_class = AdminCreateUserSerializer
-    permission_classes = [permissions.IsAdminUser | permissions.IsSuperUser]
+    permission_classes = [ IsAdminOrSuperUser ]
 
     def get_queryset(self):
         return User.objects.none()
