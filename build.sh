@@ -12,7 +12,6 @@ echo "Creating Superuser..."
 python manage.py createsuperuser \
   --noinput \
   --email "$DJANGO_SUPERUSER_EMAIL" \
-  --username admin
 echo "Superuser created."
 
 echo "Collecting static files..."
