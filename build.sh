@@ -9,9 +9,7 @@ echo "Running migrations..."
 python manage.py migrate
 
 echo "Creating Superuser..."
-python manage.py createsuperuser \
-  --noinput \
-  --email "$DJANGO_SUPERUSER_EMAIL" \
+python manage.py createsuperuser --noinput
 echo "Superuser created."
 
 echo "Collecting static files..."
