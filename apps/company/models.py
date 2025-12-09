@@ -55,3 +55,12 @@ class Testimonial(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.designation}"
+
+class SocialMedia(models.Model):
+    name = models.CharField(max_length=100)
+    icon = CloudinaryField('icon', blank=True, null=True)
+    link = models.URLField(max_length=300, blank=True, null=True)
+    isActive = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name

@@ -17,15 +17,20 @@ All endpoints use the base path: `/api/accounts/`
 - **Full URL**: `http://localhost:8000/api/accounts/register/`
 - **Description**: Register a new user
 - **Request Body**:
-  ```json
+  ```
   {
     "email": "user@example.com",
     "password": "securepassword123",
-    "password2": "securepassword123",
     "first_name": "John",
     "last_name": "Doe"
   }
   ```
+  
+  Optional / nullable fields (not required):
+  - `first_name`: optional (blank=True)
+  - `last_name`: optional (blank=True)
+  - `google_id`: optional on model (null=True) — note: API sets this via Google auth (read-only for registration)
+  - `avatar`: optional on model (null=True) — read-only
 - **Response**: User created, returns token
 - **Status**: 201 Created
 
@@ -89,15 +94,10 @@ All endpoints use the base path: `/api/accounts/`
 ---
 
 ### 5. **Verify Email**
-- **Endpoint**: `POST /api/accounts/verify-email/`
-- **Full URL**: `http://localhost:8000/api/accounts/verify-email/`
-- **Description**: Verify user email with OTP/token
-- **Request Body**:
-  ```json
-  {
-    "otp": "123456"
-  }
-  ```
+- **Endpoint**: `GET /api/accounts/verify-email/?uid={uid}&token={token}`
+- **Full URL**: `http://localhost:8000/api/accounts/verify-email/?uid=123&token=abcdef`
+- **Description**: Verify user email via query parameters received in verification link (`uid` and `token`).
+- **Request Body**: none (use query params)
 - **Response**: Email verified confirmation
 - **Status**: 200 OK
 
@@ -134,16 +134,11 @@ All endpoints use the base path: `/api/accounts/`
 ---
 
 ### 8. **Password Reset - Validate Token**
-- **Endpoint**: `POST /api/accounts/password-reset/validate/`
-- **Full URL**: `http://localhost:8000/api/accounts/password-reset/validate/`
-- **Description**: Validate password reset token
-- **Request Body**:
-  ```json
-  {
-    "token": "reset_token_from_email"
-  }
-  ```
-- **Response**: Token validity confirmation
+- **Endpoint**: `GET /api/accounts/password-reset/validate/?uid={uid}&token={token}`
+- **Full URL**: `http://localhost:8000/api/accounts/password-reset/validate/?uid=123&token=abcdef`
+- **Description**: Validate password reset token via query parameters (`uid` and `token`).
+- **Request Body**: none (use query params)
+- **Response**: Token validity confirmation (JSON `{ "valid": true }`)
 - **Status**: 200 OK
 
 ---
@@ -155,9 +150,9 @@ All endpoints use the base path: `/api/accounts/`
 - **Request Body**:
   ```json
   {
+    "uid": "<user_id_from_email_link>",
     "token": "reset_token_from_email",
-    "new_password": "newsecurepassword123",
-    "new_password2": "newsecurepassword123"
+    "password": "newsecurepassword123"
   }
   ```
 - **Response**: Password updated
@@ -186,8 +181,7 @@ All endpoints use the base path: `/api/blog/`
   ```json
   {
     "name": "Technology",
-    "slug": "technology",
-    "description": "Tech related blogs"
+    "slug": "technology"
   }
   ```
 - **Response**: List of categories or created category
@@ -221,11 +215,18 @@ All endpoints use the base path: `/api/blog/`
     "title": "Interior Design Trends 2025",
     "slug": "interior-design-trends-2025",
     "content": "Detailed blog content here...",
-    "category": 1,
-    "featured_image": "<cloudinary_url_or_file>",
+    "blog_category": 1,
+    "excerpt": "Short excerpt...",
+    "tags": ["design", "trends"],
+    "author": "Jane Author",
     "is_published": true
   }
   ```
+  
+  Optional / nullable fields (not required):
+  - `excerpt`: optional (blank=True)
+  - `tags`: optional (blank=True)
+  - `blog_category`: nullable FK (null=True) — optional
 - **Response**: List of posts or created post
 - **Status**: 200 OK / 201 Created
 
@@ -260,8 +261,7 @@ All endpoints use the base path: `/api/cms/`
   {
     "title": "About Us",
     "slug": "about-us",
-    "content": "Page content here...",
-    "is_published": true
+    "content": "Page content here..."
   }
   ```
 - **Response**: List of pages or created page
@@ -279,12 +279,17 @@ All endpoints use the base path: `/api/cms/`
   ```json
   {
     "title": "Welcome to Our Interior Design",
-    "subtitle": "Transform Your Space",
-    "image": "<cloudinary_url_or_file>",
+    "sub_title": "Transform Your Space",
     "order": 1,
-    "is_active": true
+    "is_published": true
   }
   ```
+  
+  Optional / nullable fields (not required):
+  - `sub_title`: optional (blank=True)
+  - `image`: optional (blank=True, null=True)
+  - `video_url`: optional (blank=True, null=True)
+  - `link`: optional (blank=True, null=True)
 - **Response**: List of slides or created slide
 - **Status**: 200 OK / 201 Created
 
@@ -301,10 +306,12 @@ All endpoints use the base path: `/api/cms/`
   {
     "title": "Client Consultation",
     "description": "Detailed methodology description",
-    "icon": "<cloudinary_url_or_file>",
     "order": 1
   }
   ```
+  
+  Optional / nullable fields (not required):
+  - `image_or_icon`: optional (blank=True, null=True)
 - **Response**: List of methodologies or created methodology
 - **Status**: 200 OK / 201 Created
 
@@ -321,8 +328,7 @@ All endpoints use the base path: `/api/cms/`
   {
     "question": "What is your design process?",
     "answer": "We follow a 5-step process...",
-    "order": 1,
-    "is_active": true
+    "order": 1
   }
   ```
 - **Response**: List of FAQs or created FAQ
@@ -351,9 +357,14 @@ All endpoints use the base path: `/api/company/`
     "address": "123 Main St, NY",
     "phone": "+1-555-1234",
     "email": "ny@company.com",
-    "coordinates": "40.7128,-74.0060"
+    "google_maps_url": "https://maps.google.com/?q=40.7128,-74.0060"
   }
   ```
+  
+  Optional / nullable fields (not required):
+  - `phone`: optional (blank=True, null=True)
+  - `email`: optional (blank=True, null=True)
+  - `google_maps_url`: optional (blank=True, null=True)
 - **Response**: List of offices or created office
 - **Status**: 200 OK / 201 Created
 
@@ -369,12 +380,20 @@ All endpoints use the base path: `/api/company/`
   ```json
   {
     "name": "John Smith",
-    "title": "Senior Designer",
+    "designation": "Senior Designer",
     "bio": "Experienced interior designer...",
-    "photo": "<cloudinary_url_or_file>",
-    "email": "john@company.com"
+    "social_links": [{"platform": "linkedin", "url": "https://..."}],
+    "office": 1,
+    "order": 0
   }
   ```
+  
+  Optional / nullable fields (not required):
+  - `profile_picture`: optional (blank=True, null=True)
+  - `bio`: optional (blank=True)
+  - `social_links`: optional (JSONField, default=list)
+  - `office`: optional FK (null=True)
+  - `order`: optional (defaults to 0)
 - **Response**: List of team members or created member
 - **Status**: 200 OK / 201 Created
 
@@ -390,11 +409,15 @@ All endpoints use the base path: `/api/company/`
   ```json
   {
     "title": "Best Interior Design 2024",
-    "year": 2024,
-    "description": "Award description",
-    "certificate": "<cloudinary_url_or_file>"
+    "date_received": "2024-05-01",
+    "description": "Award description"
   }
   ```
+  
+  Optional / nullable fields (not required):
+  - `image`: optional (blank=True, null=True)
+  - `date_received`: optional (blank=True, null=True)
+  - `description`: optional (blank=True)
 - **Response**: List of awards or created award
 - **Status**: 200 OK / 201 Created
 
@@ -410,11 +433,13 @@ All endpoints use the base path: `/api/company/`
   ```json
   {
     "name": "Furniture Co.",
-    "logo": "<cloudinary_url_or_file>",
-    "website": "https://furniture.com",
-    "description": "Partner description"
+    "website_url": "https://furniture.com"
   }
   ```
+  
+  Optional / nullable fields (not required):
+  - `logo`: optional (blank=True, null=True)
+  - `website_url`: optional (blank=True, null=True)
 - **Response**: List of partners or created partner
 - **Status**: 200 OK / 201 Created
 
@@ -429,11 +454,9 @@ All endpoints use the base path: `/api/company/`
 - **Request Body (POST)**:
   ```json
   {
-    "client_name": "Jane Doe",
-    "client_title": "Homeowner",
-    "testimonial_text": "Amazing service and design!",
-    "rating": 5,
-    "photo": "<cloudinary_url_or_file>"
+    "name": "Jane Doe",
+    "designation": "Homeowner",
+    "message": "Amazing service and design!"
   }
   ```
 - **Response**: List of testimonials or created testimonial
@@ -461,7 +484,6 @@ All endpoints use the base path: `/api/contact/`
     "name": "John Doe",
     "email": "john@example.com",
     "phone": "+1-555-1234",
-    "subject": "Project Inquiry",
     "message": "I'm interested in your services..."
   }
   ```
@@ -506,7 +528,13 @@ The `catalog` app uses a DRF router. Standard router patterns apply: `GET /resou
     "is_active": true
   }
   ```
-- **Response**: Created category JSON (id, name, slug, ...)
+  
+  Optional / nullable fields (not required):
+  - `description`: optional (blank=True, null=True)
+  - `image`: optional (blank=True, null=True)
+  - `is_active`: optional (defaults to true)
+
+ - **Response**: Created category JSON (id, name, slug, ...)
 - **Status**: 200 OK / 201 Created
 
 ---
@@ -534,7 +562,13 @@ The `catalog` app uses a DRF router. Standard router patterns apply: `GET /resou
     "is_active": true
   }
   ```
-- **Response**: Product JSON including `id`, `name`, `slug`, `main_image`, `is_active`, timestamps
+  
+  Optional / nullable fields (not required):
+  - `description`: optional (blank=True, null=True)
+  - `main_image`: optional (blank=True, null=True)
+  - `category`: optional FK (null=True)
+
+ - **Response**: Product JSON including `id`, `name`, `slug`, `main_image`, `is_active`, timestamps
 - **Status**: 200 OK / 201 Created
 
 ---
@@ -554,7 +588,12 @@ The `catalog` app uses a DRF router. Standard router patterns apply: `GET /resou
     "is_featured": false
   }
   ```
-- **Response**: Created image object
+  
+  Optional / nullable fields (not required):
+  - `alt_text`: optional (blank=True, null=True)
+  - `is_featured`: optional (defaults to false)
+
+ - **Response**: Created image object
 - **Status**: 200 OK / 201 Created
 
 ---
@@ -576,7 +615,12 @@ The `catalog` app uses a DRF router. Standard router patterns apply: `GET /resou
     "is_active": true
   }
   ```
-- **Response**: Created variant object
+  
+  Optional / nullable fields (not required):
+  - `image`: optional (blank=True, null=True)
+  - `is_active`: optional (defaults to true)
+
+ - **Response**: Created variant object
 - **Status**: 200 OK / 201 Created
 
 ---
@@ -595,6 +639,10 @@ The `catalog` app uses a DRF router. Standard router patterns apply: `GET /resou
   ```json
   { "attribute": 1, "value": "Red" }
   ```
+  
+  Optional / nullable fields (not required):
+  - Attribute: none (name required)
+  - AttributeValue: none (both fields required)
 - **Status**: 200 OK / 201 Created
 
 ---
@@ -611,12 +659,18 @@ The `catalog` app uses a DRF router. Standard router patterns apply: `GET /resou
   {
     "variant": 1,
     "quantity": 100,
-    "low_stock_threshold": 5,
-    "reserved_stock": 0
+    "low_stock_threshold": 5
   }
   ```
-- **Response**: Inventory object
+ - **Response**: Inventory object
 - **Status**: 200 OK / 201 Created
+  
+  Optional / nullable fields (not required):
+  - `variant`: required (OneToOne relation to ProductVariant)
+  - `quantity`: required (defaults to 0 if omitted)
+  - `low_stock_threshold`: required (defaults to 0 if omitted)
+  - `reserved_stock`: managed by system (optional, default 0) — do not set unless admin API supports it
+  - `updated_at`: read-only (auto populated)
 
 ---
 
@@ -641,13 +695,21 @@ Coupons are registered at the top-level `api/` (see main `urls.py`).
     "discount_value": 10.00,
     "min_purchase_amount": 50.00,
     "valid_from": "2025-01-01T00:00:00Z",
-    "valid_to": "2025-12-31T23:59:59Z",
+    "valid_until": "2025-12-31T23:59:59Z",
     "usage_limit": 100,
     "usage_limit_per_user": 1,
     "is_active": true
   }
   ```
-- **Response**: Created coupon object (id, code, discount_type, discount_value, valid_from, valid_to, ...)
+  
+  Optional / nullable fields (not required):
+  - `description`: optional (blank=True)
+  - `min_purchase_amount`: optional (null=True, blank=True)
+  - `usage_limit`: optional (null=True, blank=True)
+  - `usage_limit_per_user`: optional (null=True, blank=True)
+  - `is_active`: optional (defaults to true)
+
+- **Response**: Created coupon object (id, code, discount_type, discount_value, valid_from, valid_until, ...)
 - **Status**: 200 OK / 201 Created
 
 **Behavior / Permissions**:
@@ -682,10 +744,14 @@ Orders and payments are registered at top-level `/api/`.
       { "variant_id": 5, "quantity": 2 },
       { "variant_id": 8, "quantity": 1 }
     ],
-    "coupon_code": "WELCOME10"   // optional
+    "coupon_code": "WELCOME10"
   }
   ```
-- **Response**: Created order JSON (id, user, status, subtotal, shipping_cost, total, items, created_at)
+  
+  Optional / nullable fields (not required):
+  - `coupon_code`: optional (can be omitted or blank)
+
+ - **Response**: Created order JSON (id, user, status, subtotal, shipping_cost, total, items, created_at)
 - **Status**: 201 Created
 
 ---
@@ -773,9 +839,7 @@ All endpoints use the base path: `/api/estimation/`
 - **Request Body (POST)**:
   ```json
   {
-    "name": "Residential Design",
-    "description": "For home interior design projects",
-    "base_cost": 500
+    "name": "Residential Design"
   }
   ```
 - **Response**: List of categories or created category
@@ -802,11 +866,15 @@ All endpoints use the base path: `/api/projects/`
   {
     "name": "Full Home Renovation",
     "slug": "full-home-renovation",
-    "description": "Complete home renovation service",
-    "cover_image": "<cloudinary_url_or_file>"
+    "description": "Complete home renovation service"
   }
   ```
-- **Response**: List of services or created service
+  
+  Optional / nullable fields (not required):
+  - `description`: optional (blank=True)
+  - `cover_image`: optional (blank=True, null=True)
+
+ - **Response**: List of services or created service
 - **Status**: 200 OK / 201 Created
 
 ---
@@ -838,7 +906,6 @@ All endpoints use the base path: `/api/projects/`
     "title": "Modern Apartment Redesign",
     "slug": "modern-apartment-redesign",
     "description": "Complete apartment redesign project",
-    "cover_image": "<cloudinary_url_or_file>",
     "gallery_images": ["url1", "url2", "url3"],
     "location": "Brooklyn, NY",
     "date_completed": "2024-12-15",
@@ -848,7 +915,15 @@ All endpoints use the base path: `/api/projects/`
     "team_ids": [1, 2, 3]
   }
   ```
-- **Response**: List of projects or created project
+  
+  Optional / nullable fields (not required):
+  - `gallery_images`: optional (JSONField, default=list)
+  - `location`: optional (blank=True)
+  - `date_completed`: optional (blank=True, null=True)
+  - `service`: optional FK (null=True)
+  - `team_ids`: optional (many-to-many, can be omitted)
+
+ - **Response**: List of projects or created project
 - **Status**: 200 OK / 201 Created
 
 ---

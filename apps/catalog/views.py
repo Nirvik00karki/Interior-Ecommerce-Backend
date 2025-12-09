@@ -10,6 +10,8 @@ from .serializers import (
     InventorySerializer,
 )
 from apps.accounts.permissions import IsAdminOrReadOnly
+from rest_framework.parsers import MultiPartParser, FormParser
+
 # -------------------
 # Category ViewSet
 # -------------------
@@ -20,6 +22,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = [filters.SearchFilter]
     search_fields = ["name"]
+    parser_classes = [MultiPartParser, FormParser]
 
 
 # -------------------
@@ -30,6 +33,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all().select_related("category")
     serializer_class = ProductSerializer
     permission_classes = [IsAdminOrReadOnly]
+    parser_classes = [MultiPartParser, FormParser]
 
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["category", "is_active"]
@@ -46,6 +50,7 @@ class ProductVariantViewSet(viewsets.ModelViewSet):
     queryset = ProductVariant.objects.all().select_related("product")
     serializer_class = ProductVariantSerializer
     permission_classes = [IsAdminOrReadOnly]
+    parser_classes = [MultiPartParser, FormParser]
 
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["product", "is_active"]
@@ -59,6 +64,7 @@ class ProductImageViewSet(viewsets.ModelViewSet):
     queryset = ProductImage.objects.all().select_related("product")
     serializer_class = ProductImageSerializer
     permission_classes = [IsAdminOrReadOnly]
+    parser_classes = [MultiPartParser, FormParser]
 
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["product"]
@@ -72,6 +78,7 @@ class ProductVariantAttributeViewSet(viewsets.ModelViewSet):
     queryset = ProductVariantAttribute.objects.all()
     serializer_class = ProductVariantAttributeSerializer
     permission_classes = [IsAdminOrReadOnly]
+    parser_classes = [MultiPartParser, FormParser]
 
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["product", "variant"]

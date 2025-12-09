@@ -8,7 +8,7 @@ class BlogCategorySerializer(serializers.ModelSerializer):
         fields = ("id", "name", "slug")
 
 class BlogPostSerializer(serializers.ModelSerializer):
-    author = UserSerializer(read_only=True)
+    blogpost_user = UserSerializer(read_only=True)
     cover_image_url = serializers.SerializerMethodField()
     blog_category_detail = BlogCategorySerializer(source="blog_category", read_only=True)
 
@@ -16,7 +16,7 @@ class BlogPostSerializer(serializers.ModelSerializer):
         model = BlogPost
         fields = (
             "id", "title", "slug", "cover_image_url", "excerpt", "content",
-            "tags", "author", "is_published", "blog_category", "blog_category_detail", "date"
+            "tags", "blogpost_user", "author", "is_published", "blog_category", "blog_category_detail", "date"
         )
 
     def get_cover_image_url(self, obj):
@@ -25,5 +25,5 @@ class BlogPostSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request = self.context.get("request")
         if request and hasattr(request, "user") and request.user.is_authenticated:
-            validated_data["author"] = request.user
+            validated_data["blogpost_user"] = request.user
         return super().create(validated_data)

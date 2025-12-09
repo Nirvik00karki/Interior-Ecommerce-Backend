@@ -5,6 +5,7 @@ from django.db import transaction
 
 from .models import BlogCategory, BlogPost
 from .serializers import BlogCategorySerializer, BlogPostSerializer
+from rest_framework.parsers import MultiPartParser, FormParser
 
 CACHE_TIME = 60 * 5
 
@@ -18,10 +19,10 @@ class BlogCategoryViewSet(viewsets.ModelViewSet):
 
 @method_decorator(cache_page(CACHE_TIME), name="list")
 class BlogPostViewSet(viewsets.ModelViewSet):
-    queryset = BlogPost.objects.select_related("author", "blog_category").order_by("-date")
+    queryset = BlogPost.objects.select_related("blogpost_user", "blog_category").order_by("-date")
     serializer_class = BlogPostSerializer
-    # Public read, authenticated write
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    parser_classes = [MultiPartParser, FormParser]
 
     @transaction.atomic
     def perform_create(self, serializer):
