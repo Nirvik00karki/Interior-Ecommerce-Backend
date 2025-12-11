@@ -16,7 +16,7 @@ class PageViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
-@method_decorator(cache_page(CACHE_TIME), name="list")
+# @method_decorator(cache_page(CACHE_TIME), name="list")
 class HeroSlideViewSet(viewsets.ModelViewSet):
     queryset = HeroSlide.objects.all().order_by("order")
     serializer_class = HeroSlideSerializer

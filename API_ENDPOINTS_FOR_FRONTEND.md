@@ -215,6 +215,7 @@ All endpoints use the base path: `/api/blog/`
     "title": "Interior Design Trends 2025",
     "slug": "interior-design-trends-2025",
     "content": "Detailed blog content here...",
+    "cover_image": "",
     "blog_category": 1,
     "excerpt": "Short excerpt...",
     "tags": ["design", "trends"],

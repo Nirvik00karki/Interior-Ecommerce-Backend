@@ -9,17 +9,17 @@ class BlogCategorySerializer(serializers.ModelSerializer):
 
 class BlogPostSerializer(serializers.ModelSerializer):
     blogpost_user = UserSerializer(read_only=True)
-    cover_image_url = serializers.SerializerMethodField()
+    cover_image = serializers.SerializerMethodField()
     blog_category_detail = BlogCategorySerializer(source="blog_category", read_only=True)
 
     class Meta:
         model = BlogPost
         fields = (
-            "id", "title", "slug", "cover_image_url", "excerpt", "content",
+            "id", "title", "slug", "cover_image", "excerpt", "content",
             "tags", "blogpost_user", "author", "is_published", "blog_category", "blog_category_detail", "date"
         )
 
-    def get_cover_image_url(self, obj):
+    def get_cover_image(self, obj):
         return getattr(obj.cover_image, "url", None)
 
     def create(self, validated_data):
