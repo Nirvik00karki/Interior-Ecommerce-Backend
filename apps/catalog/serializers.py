@@ -29,15 +29,31 @@ class AttributeSerializer(serializers.ModelSerializer):
 # PRODUCT IMAGE SERIALIZER
 # ---------------------------------------------------------
 class ProductImageSerializer(serializers.ModelSerializer):
-    image_url = serializers.SerializerMethodField()
+    image = serializers.ImageField(write_only=True, required=False, allow_null=True)
+    image_url = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = ProductImage
         fields = ["id", "image", "image_url", "alt_text", "is_featured"]
 
     def get_image_url(self, obj):
-        return obj.image.url if obj.image else None
+        return getattr(obj.image, "url", None)
 
+    def create(self, validated_data):
+        image = validated_data.pop("image", None)
+        instance = super().create(validated_data)
+        if image:
+            instance.image = image
+            instance.save()
+        return instance
+
+    def update(self, instance, validated_data):
+        image = validated_data.pop("image", None)
+        instance = super().update(instance, validated_data)
+        if image:
+            instance.image = image
+            instance.save()
+        return instance
 
 # ---------------------------------------------------------
 # VARIANT ATTRIBUTE SERIALIZER
@@ -55,7 +71,8 @@ class ProductVariantAttributeSerializer(serializers.ModelSerializer):
 # PRODUCT VARIANT SERIALIZER
 # ---------------------------------------------------------
 class ProductVariantSerializer(serializers.ModelSerializer):
-    image_url = serializers.SerializerMethodField()
+    image = serializers.ImageField(write_only=True, required=False, allow_null=True)
+    image_url = serializers.SerializerMethodField(read_only=True)
     attributes = ProductVariantAttributeSerializer(many=True, read_only=True)
 
     class Meta:
@@ -66,33 +83,75 @@ class ProductVariantSerializer(serializers.ModelSerializer):
         ]
 
     def get_image_url(self, obj):
-        return obj.image.url if obj.image else None
+        return getattr(obj.image, "url", None)
+
+    def create(self, validated_data):
+        image = validated_data.pop("image", None)
+        instance = super().create(validated_data)
+        if image:
+            instance.image = image
+            instance.save()
+        return instance
+
+    def update(self, instance, validated_data):
+        image = validated_data.pop("image", None)
+        instance = super().update(instance, validated_data)
+        if image:
+            instance.image = image
+            instance.save()
+        return instance
 
 
 # ---------------------------------------------------------
 # PRODUCT SERIALIZER
 # ---------------------------------------------------------
 class ProductSerializer(serializers.ModelSerializer):
+    # Accept file upload from multipart/form-data
+    main_image = serializers.ImageField(write_only=True, required=False, allow_null=True)
+
     images = ProductImageSerializer(many=True, read_only=True)
     variants = ProductVariantSerializer(many=True, read_only=True)
 
     min_price = serializers.SerializerMethodField()
     max_price = serializers.SerializerMethodField()
 
-    main_image_url = serializers.SerializerMethodField()
+    main_image_url = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Product
         fields = [
-            "id", "name", "slug", "description",
-            "main_image", "main_image_url",
-            "min_price", "max_price",
-            "category", "images", "variants",
-            "is_active"
+            "id",
+            "name",
+            "slug",
+            "description",
+            "main_image",
+            "main_image_url",
+            "min_price",
+            "max_price",
+            "category",
+            "images",
+            "variants",
+            "is_active",
         ]
 
     def get_main_image_url(self, obj):
-        return obj.main_image.url if obj.main_image else None
+        return getattr(obj.main_image, "url", None)
+
+    def create(self, validated_data):
+        image = validated_data.pop("main_image", None)
+        instance = super().create(validated_data)
+        if image:
+            instance.main_image = image
+            instance.save()
+        return instance
+
+    def update(self, instance, validated_data):
+        image = validated_data.pop("main_image", None)
+        instance = super().update(instance, validated_data)
+        if image:
+            instance.main_image = image
+            instance.save()
+        return instance
 
     def get_min_price(self, obj):
         variant = obj.variants.order_by("price").first()
@@ -107,16 +166,35 @@ class ProductSerializer(serializers.ModelSerializer):
 # CATEGORY SERIALIZER
 # ---------------------------------------------------------
 class CategorySerializer(serializers.ModelSerializer):
-    image_url = serializers.SerializerMethodField()
+    image = serializers.ImageField(write_only=True, required=False, allow_null=True)
+    image_url = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Category
         fields = [
-            "id", "name", "slug", "description", "image", "image_url", "is_active"
+            "id", "name", "slug", "description",
+            "image", "image_url",
+            "is_active"
         ]
 
     def get_image_url(self, obj):
-        return obj.image.url if obj.image else None
+        return getattr(obj.image, "url", None)
+
+    def create(self, validated_data):
+        image = validated_data.pop("image", None)
+        instance = super().create(validated_data)
+        if image:
+            instance.image = image
+            instance.save()
+        return instance
+
+    def update(self, instance, validated_data):
+        image = validated_data.pop("image", None)
+        instance = super().update(instance, validated_data)
+        if image:
+            instance.image = image
+            instance.save()
+        return instance
 
 # ---------------------------------------------------------
 # INVENTORY SERIALIZER

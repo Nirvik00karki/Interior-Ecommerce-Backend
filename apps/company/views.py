@@ -5,10 +5,10 @@ from django.views.decorators.cache import cache_page
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.utils.decorators import method_decorator
 
-from .models import Office, TeamMember, Award, Partner, Testimonial
+from .models import Office, TeamMember, Award, Partner, Testimonial, SocialMedia
 from .serializers import (
     OfficeSerializer, TeamMemberSerializer, AwardSerializer,
-    PartnerSerializer, TestimonialSerializer
+    PartnerSerializer, TestimonialSerializer, SocialMediaSerializer
 )
 
 CACHE_TIME = 60 * 5  # 5 minutes
@@ -54,3 +54,8 @@ class TestimonialViewSet(viewsets.ModelViewSet):
     parser_classes = [MultiPartParser, FormParser]
     
     
+class SocialMediaViewSet(viewsets.ModelViewSet):
+    queryset = SocialMedia.objects.all()
+    serializer_class = SocialMediaSerializer
+    permission_classes = [permissions.IsAdminUser]
+    parser_classes = [MultiPartParser, FormParser]
