@@ -289,7 +289,7 @@ All endpoints use the base path: `/api/cms/`
   Optional / nullable fields (not required):
   - `sub_title`: optional (blank=True)
   - `image`: optional (blank=True, null=True)
-  - `video_url`: optional (blank=True, null=True)
+  - `video`: optional (blank=True, null=True)
   - `link`: optional (blank=True, null=True)
 - **Response**: List of slides or created slide
 - **Status**: 200 OK / 201 Created

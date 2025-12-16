@@ -17,7 +17,11 @@ class HeroSlide(models.Model):
     title = models.CharField(max_length=200)
     sub_title = models.CharField(max_length=200, blank=True)
     image = CloudinaryField("image", blank=True, null=True)
-    video_url = models.URLField(blank=True, null=True)
+    video_url = CloudinaryField(
+        resource_type="video",
+        blank=True,
+        null=True
+    )
     link = models.URLField(blank=True, null=True)
     order = models.PositiveIntegerField(default=0)
     is_published = models.BooleanField(default=True)

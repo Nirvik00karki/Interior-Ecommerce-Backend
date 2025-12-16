@@ -7,9 +7,22 @@ class PageSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class HeroSlideSerializer(serializers.ModelSerializer):
-    # Accept uploaded file from multipart/form-data. write_only so it's not repeated in JSON response.
-    image = serializers.ImageField(write_only=True, required=False, allow_null=True)
+    # Upload fields (write-only)
+    image = serializers.ImageField(
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
+
+    video = serializers.FileField(
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
+
+    # Read-only URLs
     image_url = serializers.SerializerMethodField(read_only=True)
+    video_url = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = HeroSlide
@@ -19,6 +32,7 @@ class HeroSlideSerializer(serializers.ModelSerializer):
             "sub_title",
             "image",
             "image_url",
+            "video",
             "video_url",
             "link",
             "order",
@@ -28,22 +42,33 @@ class HeroSlideSerializer(serializers.ModelSerializer):
     def get_image_url(self, obj):
         return getattr(obj.image, "url", None)
 
+    def get_video_url(self, obj):
+        return getattr(obj.video_url, "url", None)
+
     def create(self, validated_data):
         image = validated_data.pop("image", None)
+        video = validated_data.pop("video", None)
         instance = super().create(validated_data)
         if image:
             instance.image = image
+        if video:
+            instance.video_url = video
+        if image or video:
             instance.save()
         return instance
 
     def update(self, instance, validated_data):
         image = validated_data.pop("image", None)
+        video = validated_data.pop("video", None)
         instance = super().update(instance, validated_data)
         if image:
             instance.image = image
+        if video:
+            instance.video_url = video
+        if image or video:
             instance.save()
         return instance
-
+    
 class MethodologySerializer(serializers.ModelSerializer):
     image = serializers.ImageField(write_only=True, required=False, allow_null=True)
     image_url = serializers.SerializerMethodField(read_only=True)
