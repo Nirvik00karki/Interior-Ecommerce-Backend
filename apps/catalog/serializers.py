@@ -29,12 +29,15 @@ class AttributeSerializer(serializers.ModelSerializer):
 # PRODUCT IMAGE SERIALIZER
 # ---------------------------------------------------------
 class ProductImageSerializer(serializers.ModelSerializer):
+    product = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects.all(), write_only=True
+    )
     image = serializers.ImageField(write_only=True, required=False, allow_null=True)
     image_url = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = ProductImage
-        fields = ["id", "image", "image_url", "alt_text", "is_featured"]
+        fields = ["id", "product", "image", "image_url", "alt_text", "is_featured"]
 
     def get_image_url(self, obj):
         return getattr(obj.image, "url", None)
