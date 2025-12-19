@@ -71,6 +71,9 @@ class ProductVariantAttributeSerializer(serializers.ModelSerializer):
 # PRODUCT VARIANT SERIALIZER
 # ---------------------------------------------------------
 class ProductVariantSerializer(serializers.ModelSerializer):
+    product = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects.all(), write_only=True
+    )
     image = serializers.ImageField(write_only=True, required=False, allow_null=True)
     image_url = serializers.SerializerMethodField(read_only=True)
     attributes = ProductVariantAttributeSerializer(many=True, read_only=True)
@@ -78,7 +81,7 @@ class ProductVariantSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductVariant
         fields = [
-            "id", "sku", "name", "price", "stock",
+            "id","product", "sku", "name", "price", "stock",
             "image", "image_url", "is_active", "attributes"
         ]
 

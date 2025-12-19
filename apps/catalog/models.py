@@ -129,10 +129,6 @@ class ProductVariant(models.Model):
 
     # Pricing lives ONLY here
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    # compare_at_price = models.DecimalField(
-    #     max_digits=10, decimal_places=2, blank=True, null=True
-    # )
-
     # Inventory lives here (variant-specific)
     stock = models.PositiveIntegerField(default=0)
 
