@@ -17,7 +17,7 @@ urlpatterns = [
     # slug-based detail route for customer-facing API
     path(
         "partners/<slug:slug>/",
-        PartnerViewSet.as_view({"get": "retrieve"}),
+        PartnerViewSet.as_view({"get": "retrieve"}, lookup_field="slug", lookup_url_kwarg="slug"),
         name="partner-by-slug"
     ),
 ] + router.urls

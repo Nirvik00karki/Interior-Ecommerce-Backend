@@ -21,12 +21,12 @@ urlpatterns = [
     # slug-based detail routes
     path(
         "categories/<slug:slug>/",
-        CategoryViewSet.as_view({"get": "retrieve"}),
+        CategoryViewSet.as_view({"get": "retrieve"}, lookup_field="slug", lookup_url_kwarg="slug"),
         name="category-by-slug"
     ),
     path(
         "products/<slug:slug>/",
-        ProductViewSet.as_view({"get": "retrieve"}),
+        ProductViewSet.as_view({"get": "retrieve"}, lookup_field="slug", lookup_url_kwarg="slug"),
         name="product-by-slug"
     ),
 ] + router.urls

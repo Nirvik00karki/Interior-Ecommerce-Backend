@@ -10,12 +10,12 @@ urlpatterns = [
     # slug-based detail routes for customer-facing APIs
     path(
         "categories/<slug:slug>/",
-        BlogCategoryViewSet.as_view({"get": "retrieve"}),
+        BlogCategoryViewSet.as_view({"get": "retrieve"}, lookup_field="slug", lookup_url_kwarg="slug"),
         name="blogcategory-by-slug"
     ),
     path(
         "posts/<slug:slug>/",
-        BlogPostViewSet.as_view({"get": "retrieve"}),
+        BlogPostViewSet.as_view({"get": "retrieve"}, lookup_field="slug", lookup_url_kwarg="slug"),
         name="blogpost-by-slug"
     ),
 ] + router.urls

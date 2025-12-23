@@ -25,22 +25,22 @@ urlpatterns = [
     # slug-based detail routes for customer-facing APIs
     path(
         "sectors/<slug:slug>/",
-        SectorViewSet.as_view({"get": "retrieve"}),
+        SectorViewSet.as_view({"get": "retrieve"}, lookup_field="slug", lookup_url_kwarg="slug"),
         name="sector-by-slug"
     ),
     path(
         "services/<slug:slug>/",
-        ServiceViewSet.as_view({"get": "retrieve"}),
+        ServiceViewSet.as_view({"get": "retrieve"}, lookup_field="slug", lookup_url_kwarg="slug"),
         name="service-by-slug"
     ),
     path(
         "projects/<slug:slug>/",
-        ProjectViewSet.as_view({"get": "retrieve"}),
+        ProjectViewSet.as_view({"get": "retrieve"}, lookup_field="slug", lookup_url_kwarg="slug"),
         name="project-by-slug"
     ),
     path(
         "packages/<slug:slug>/",
-        PackageViewSet.as_view({"get": "retrieve"}),
+        PackageViewSet.as_view({"get": "retrieve"}, lookup_field="slug", lookup_url_kwarg="slug"),
         name="package-by-slug"
     ),
 ] + router.urls
