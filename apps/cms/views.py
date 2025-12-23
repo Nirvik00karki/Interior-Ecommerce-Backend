@@ -14,6 +14,7 @@ class PageViewSet(viewsets.ModelViewSet):
     serializer_class = PageSerializer
     # Pages are publicly readable; editing requires authentication
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    lookup_field = "slug"
 
 
 # @method_decorator(cache_page(CACHE_TIME), name="list")

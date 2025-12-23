@@ -2,9 +2,20 @@ from rest_framework import serializers
 from .models import Page, HeroSlide, Methodology, FAQ
 
 class PageSerializer(serializers.ModelSerializer):
+    cover_image = serializers.ImageField(write_only=True, required=False)
+    cover_image_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Page
-        fields = "__all__"
+        fields = [
+            "id", "title", "slug",
+            "content", "brief",
+            "cover_image", "cover_image_url",
+        ]
+
+    def get_cover_image_url(self, obj):
+        return getattr(obj.cover_image, "url", None)
+
 
 class HeroSlideSerializer(serializers.ModelSerializer):
     # Upload fields (write-only)

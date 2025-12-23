@@ -18,6 +18,7 @@ class CouponViewSet(viewsets.ModelViewSet):
     """
     queryset = Coupon.objects.all().order_by("-created_at")
     permission_classes = [IsAdminOrReadOnly]
+    lookup_field = "code"
 
     def get_serializer_class(self):
         if self.action in ["create", "update", "partial_update"]:

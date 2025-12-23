@@ -23,6 +23,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter]
     search_fields = ["name"]
     parser_classes = [MultiPartParser, FormParser]
+    lookup_field = "slug"
 
 
 # -------------------
@@ -34,6 +35,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     permission_classes = [IsAdminOrReadOnly]
     parser_classes = [MultiPartParser, FormParser]
+    lookup_field = "slug"
 
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["category", "is_active"]

@@ -190,11 +190,11 @@ All endpoints use the base path: `/api/blog/`
 ---
 
 ### 2. **Blog Categories - Retrieve / Update / Delete**
-- **Endpoint**: `GET /api/blog/categories/{id}/` | `PUT /api/blog/categories/{id}/` | `DELETE /api/blog/categories/{id}/`
+- **Endpoint**: `GET /api/blog/categories/{slug}/` | `PUT /api/blog/categories/{slug}/` | `DELETE /api/blog/categories/{slug}/`
 - **Full URLs**: 
-  - Get: `http://localhost:8000/api/blog/categories/1/`
-  - Update: `http://localhost:8000/api/blog/categories/1/`
-  - Delete: `http://localhost:8000/api/blog/categories/1/`
+  - Get: `http://localhost:8000/api/blog/categories/technology/`
+  - Update: `http://localhost:8000/api/blog/categories/technology/`
+  - Delete: `http://localhost:8000/api/blog/categories/technology/`
 - **Description**: Get, update, or delete a specific blog category
 
 ---
@@ -234,11 +234,11 @@ All endpoints use the base path: `/api/blog/`
 ---
 
 ### 4. **Blog Posts - Retrieve / Update / Delete**
-- **Endpoint**: `GET /api/blog/posts/{id}/` | `PUT /api/blog/posts/{id}/` | `DELETE /api/blog/posts/{id}/`
+- **Endpoint**: `GET /api/blog/posts/{slug}/` | `PUT /api/blog/posts/{slug}/` | `DELETE /api/blog/posts/{slug}/`
 - **Full URLs**: 
-  - Get: `http://localhost:8000/api/blog/posts/1/`
-  - Update: `http://localhost:8000/api/blog/posts/1/`
-  - Delete: `http://localhost:8000/api/blog/posts/1/`
+  - Get: `http://localhost:8000/api/blog/posts/interior-design-trends-2025/`
+  - Update: `http://localhost:8000/api/blog/posts/interior-design-trends-2025/`
+  - Delete: `http://localhost:8000/api/blog/posts/interior-design-trends-2025/`
 - **Description**: Get, update, or delete a specific blog post
 
 ---
@@ -267,6 +267,16 @@ All endpoints use the base path: `/api/cms/`
   ```
 - **Response**: List of pages or created page
 - **Status**: 200 OK / 201 Created
+
+---
+
+### 1.5 **Pages - Retrieve / Update / Delete**
+- **Endpoint**: `GET /api/cms/pages/{slug}/` | `PUT /api/cms/pages/{slug}/` | `DELETE /api/cms/pages/{slug}/`
+- **Full URLs**: 
+  - Get: `http://localhost:8000/api/cms/pages/about-us/`
+  - Update: `http://localhost:8000/api/cms/pages/about-us/`
+  - Delete: `http://localhost:8000/api/cms/pages/about-us/`
+- **Description**: Get, update, or delete a specific page
 
 ---
 
@@ -500,6 +510,7 @@ All endpoints use the base path: `/api/contact/`
   - Update: `http://localhost:8000/api/contact/contact-submissions/1/`
   - Delete: `http://localhost:8000/api/contact/contact-submissions/1/`
 - **Description**: Get, update, or delete a specific submission
+- **Note**: Contact submissions use numeric ID lookup (no slug field)
 
 ---
 
@@ -510,7 +521,7 @@ All endpoints use the base path: `/api/catalog/`
 **Complete URLs**:
 - Local: `http://localhost:8000/api/catalog/`
 - Production: `https://interior-ecommerce-backend.onrender.com/api/catalog/`
-
+ with slug-based lookup for most resources. Standard router patterns apply: `GET /resource/` (list), `POST /resource/` (create), `GET /resource/{slug}/` (retrieve), `PUT/PATCH /resource/{slug}/` (update), `DELETE /resource/{slug}/` (delete). Some resources (like Inventory) may use numeric ID lookup
 The `catalog` app uses a DRF router. Standard router patterns apply: `GET /resource/` (list), `POST /resource/` (create), `GET /resource/{id}/` (retrieve), `PUT/PATCH /resource/{id}/` (update), `DELETE /resource/{id}/` (delete).
 
 ### 1. **Categories - List / Create**
@@ -654,6 +665,7 @@ The `catalog` app uses a DRF router. Standard router patterns apply: `GET /resou
   - List: `http://localhost:8000/api/catalog/inventory/`
   - Create: `http://localhost:8000/api/catalog/inventory/`
   - Update: `http://localhost:8000/api/catalog/inventory/1/`
+- **Note**: Inventory uses numeric ID lookup (no slug field)
 - **Description**: Inventory entries are linked to `ProductVariant` and track `quantity`, `reserved_stock`, and thresholds.
 - **Request Body (POST/PUT)**:
   ```json
@@ -718,7 +730,17 @@ Coupons are registered at the top-level `api/` (see main `urls.py`).
 - Deletion is prevented if `CouponUsage` entries exist for that coupon (API will return 400 error).
 
 ---
+s - Retrieve / Update / Delete**
+- **Endpoint**: `GET /api/coupons/{code}/` | `PUT /api/coupons/{code}/` | `DELETE /api/coupons/{code}/`
+- **Full URLs**:
+  - Get: `http://localhost:8000/api/coupons/WELCOME10/`
+  - Update: `http://localhost:8000/api/coupons/WELCOME10/`
+  - Delete: `http://localhost:8000/api/coupons/WELCOME10/`
+- **Description**: Get, update, or delete a specific coupon by its code
 
+---
+
+### 3. **Coupon
 ### 2. **Coupon Usage - List (Admin)**
 - **Endpoint**: `GET /api/coupon-usage/`
 - **Full URL**: `http://localhost:8000/api/coupon-usage/`
@@ -752,7 +774,8 @@ Orders and payments are registered at top-level `/api/`.
   Optional / nullable fields (not required):
   - `coupon_code`: optional (can be omitted or blank)
 
- - **Response**: Created order JSON (id, user, status, subtotal, shipping_cost, total, items, created_at)
+ - **Response**: Created order JSON (id, user, status, subtotal, shipping_cost, to
+- **Note**: Orders use numeric ID lookup (no slug field)tal, items, created_at)
 - **Status**: 201 Created
 
 ---
@@ -800,7 +823,8 @@ Orders and payments are registered at top-level `/api/`.
   ```json
   { "message": "Order cancelled." }
   ```
-- **Status**: 200 OK (or 400 on invalid state)
+- **Status**: 200 OK
+- **Note**: Payments use numeric ID lookup (no slug field) (or 400 on invalid state)
 
 ---
 
@@ -862,18 +886,35 @@ All endpoints use the base path: `/api/projects/`
   - List: `http://localhost:8000/api/projects/services/`
   - Create: `http://localhost:8000/api/projects/services/`
 - **Description**: List services offered
+- **Query Parameters (GET)**:
+  - `parent`: Filter by parent service ID
+  - `type`: Filter by type (service, product, both)
+  - `is_ksp`: Filter by KSP status (true/false)
 - **Request Body (POST)**:
   ```json
   {
     "name": "Full Home Renovation",
     "slug": "full-home-renovation",
-    "description": "Complete home renovation service"
+    "description": "Complete home renovation service",
+    "cover_image": "<image_file>",
+    "icon": "<icon_file>",
+    "parent": null,
+    "type": "service",
+    "is_ksp": false
   }
   ```
   
+  Required fields:
+  - `name`: required (max_length=100)
+  - `slug`: required (unique)
+  - `type`: required (choices: service, product, both)
+
   Optional / nullable fields (not required):
   - `description`: optional (blank=True)
-  - `cover_image`: optional (blank=True, null=True)
+  - `cover_image`: required (CloudinaryField)
+  - `icon`: optional (CloudinaryField, blank=True, null=True)
+  - `parent`: optional (ForeignKey to Service, null=True)
+  - `is_ksp`: optional (defaults to False)
 
  - **Response**: List of services or created service
 - **Status**: 200 OK / 201 Created
@@ -881,61 +922,475 @@ All endpoints use the base path: `/api/projects/`
 ---
 
 ### 2. **Services - Retrieve / Update / Delete**
-- **Endpoint**: `GET /api/projects/services/{id}/` | `PUT /api/projects/services/{id}/` | `DELETE /api/projects/services/{id}/`
+- **Endpoint**: `GET /api/projects/services/{slug}/` | `PUT /api/projects/services/{slug}/` | `DELETE /api/projects/services/{slug}/`
 - **Full URLs**: 
-  - Get: `http://localhost:8000/api/projects/services/1/`
-  - Update: `http://localhost:8000/api/projects/services/1/`
-  - Delete: `http://localhost:8000/api/projects/services/1/`
+  - Get: `http://localhost:8000/api/projects/services/full-home-renovation/`
+  - Update: `http://localhost:8000/api/projects/services/full-home-renovation/`
+  - Delete: `http://localhost:8000/api/projects/services/full-home-renovation/`
 - **Description**: Get, update, or delete a specific service
 
 ---
 
-### 3. **Projects - List / Create**
+### 3. **Sectors - List / Create**
+- **Endpoint**: `GET /api/projects/sectors/` | `POST /api/projects/sectors/`
+- **Full URLs**: 
+  - List: `http://localhost:8000/api/projects/sectors/`
+  - Create: `http://localhost:8000/api/projects/sectors/`
+- **Description**: List all project sectors (categories)
+- **Request Body (POST)**:
+  ```json
+  {
+    "name": "Commercial",
+    "slug": "commercial",
+    "description": "Commercial real estate projects",
+    "cover_image": "<image_file>",
+    "icon": "<icon_file>"
+  }
+  ```
+  
+  Fields:
+  - `name`: required (max_length=100, unique)
+  - `slug`: required (unique)
+  - `description`: optional (blank=True)
+  - `cover_image`: optional (CloudinaryField, blank=True, null=True)
+  - `icon`: optional (CloudinaryField, blank=True, null=True)
+
+- **Response**: List of sectors or created sector
+- **Status**: 200 OK / 201 Created
+
+---
+
+### 4. **Sectors - Retrieve / Update / Delete**
+- **Endpoint**: `GET /api/projects/sectors/{slug}/` | `PUT /api/projects/sectors/{slug}/` | `DELETE /api/projects/sectors/{slug}/`
+- **Full URLs**: 
+  - Get: `http://localhost:8000/api/projects/sectors/commercial/`
+  - Update: `http://localhost:8000/api/projects/sectors/commercial/`
+  - Delete: `http://localhost:8000/api/projects/sectors/commercial/`
+- **Description**: Get, update, or delete a specific sector
+
+---
+
+### 5. **Service Lists - List / Create**
+- **Endpoint**: `GET /api/projects/service-lists/` | `POST /api/projects/service-lists/`
+- **Full URLs**: 
+  - List: `http://localhost:8000/api/projects/service-lists/`
+  - Create: `http://localhost:8000/api/projects/service-lists/`
+- **Description**: List all service list items (sub-services under main services)
+- **Request Body (POST)**:
+  ```json
+  {
+    "service": 1,
+    "name": "Interior Design",
+    "slug": "interior-design",
+    "cover_image": "<image_file>"
+  }
+  ```
+  
+  Fields:
+  - `service`: required (ForeignKey to Service)
+  - `name`: required (max_length=100)
+  - `slug`: required (must be unique with service)
+  - `cover_image`: optional (CloudinaryField, blank=True, null=True)
+
+- **Response**: List of service lists or created service list
+- **Status**: 200 OK / 201 Created
+
+### 5.5 **Service Lists - Retrieve / Update / Delete**
+- **Endpoint**: `GET /api/projects/service-lists/{slug}/` | `PUT /api/projects/service-lists/{slug}/` | `DELETE /api/projects/service-lists/{slug}/`
+- **Full URLs**: 
+  - Get: `http://localhost:8000/api/projects/service-lists/interior-design/`
+  - Update: `http://localhost:8000/api/projects/service-lists/interior-design/`
+  - Delete: `http://localhost:8000/api/projects/service-lists/interior-design/`
+- **Description**: Get, update, or delete a specific service list
+
+---
+
+### 7. **Projects - List / Create**
 - **Endpoint**: `GET /api/projects/projects/` | `POST /api/projects/projects/`
 - **Full URLs**: 
   - List: `http://localhost:8000/api/projects/projects/`
   - Create: `http://localhost:8000/api/projects/projects/`
 - **Description**: List all projects
 - **Query Parameters (GET)**:
-  - `search`: Search by title
-  - `service`: Filter by service ID
-  - `status`: Filter by status (Completed, Ongoing, Future)
-  - `page`: Pagination
+  - `sector`: Filter by sector slug/ID
+  - `services`: Filter by service ID
+  - `status`: Filter by status (completed, ongoing, future)
+  - `is_featured`: Filter by featured status (true/false)
 - **Request Body (POST)**:
   ```json
   {
     "title": "Modern Apartment Redesign",
     "slug": "modern-apartment-redesign",
     "description": "Complete apartment redesign project",
-    "gallery_images": ["url1", "url2", "url3"],
+    "cover_image": "<image_file>",
     "location": "Brooklyn, NY",
     "date_completed": "2024-12-15",
-    "status": "Completed",
+    "status": "completed",
     "is_featured": true,
-    "service": 1,
-    "team_ids": [1, 2, 3]
+    "sector": 1,
+    "services": [1, 2],
+    "gallery_images": [
+      {"image": "<image_file>"},
+      {"image": "<image_file>"}
+    ]
   }
   ```
   
+  Required fields:
+  - `title`: required (max_length=200)
+  - `slug`: required (unique)
+  - `description`: required
+  - `cover_image`: required (CloudinaryField)
+  - `status`: required (choices: completed, ongoing, future)
+
   Optional / nullable fields (not required):
-  - `gallery_images`: optional (JSONField, default=list)
   - `location`: optional (blank=True)
   - `date_completed`: optional (blank=True, null=True)
-  - `service`: optional FK (null=True)
-  - `team_ids`: optional (many-to-many, can be omitted)
+  - `is_featured`: optional (default=False)
+  - `sector`: optional (ForeignKey to Sector, null=True)
+  - `services`: optional (ManyToMany to Service through ProjectServiceLink)
+  - `gallery_images`: optional (nested array of ProjectGalleryImage)
 
- - **Response**: List of projects or created project
+- **Response**: List of projects or created project
 - **Status**: 200 OK / 201 Created
 
 ---
 
-### 4. **Projects - Retrieve / Update / Delete**
-- **Endpoint**: `GET /api/projects/projects/{id}/` | `PUT /api/projects/projects/{id}/` | `DELETE /api/projects/projects/{id}/`
+### 8. **Projects - Retrieve / Update / Deletslug}/` | `PUT /api/projects/projects/{slug}/` | `DELETE /api/projects/projects/{slug}/`
 - **Full URLs**: 
-  - Get: `http://localhost:8000/api/projects/projects/1/`
-  - Update: `http://localhost:8000/api/projects/projects/1/`
-  - Delete: `http://localhost:8000/api/projects/projects/1/`
-- **Description**: Get, update, or delete a specific project
+  - Get: `http://localhost:8000/api/projects/e**
+- **Endpoint**: `GET /api/projects/projects/{slug}/` | `PUT /api/projects/projects/{slug}/` | `DELETE /api/projects/projects/{slug}/`
+- **Full URLs**: 
+  - Get: `http://localhost:8000/api/projects/projects/modern-apartment-redesign/`
+  - Update: `http://localhost:8000/api/projects/projects/modern-apartment-redesign/`
+  - Delete: `http://localhost:8000/api/projects/projects/modern-apartment-redesign
+  ```json
+  {
+    "id": 1,
+    "title": "Modern Apartment Redesign",
+    "slug": "modern-apartment-redesign",
+    "description": "Complete apartment redesign project",
+    "cover_image_url": "https://cloudinary.com/...",
+    "location": "Brooklyn, NY",
+    "date_completed": "2024-12-15",
+    "status": "completed",
+    "is_featured": true,
+    "sector": 1,
+    "services": [1, 2],
+    "gallery_images": [
+      {
+        "id": 10,
+        "image_url": "https://cloudinary.com/..."
+      },
+      {
+        "id": 11,
+        "image_url": "https://cloudinary.com/..."
+      }
+    ]
+  }
+  ```
+
+---
+
+### 9. **Project Gallery Images**
+- **Endpoint**: `GET /api/projects/project-gallery-images/` | `POST /api/projects/project-gallery-images/`
+- **Full URLs**: 
+  - List: `http://localhost:8000/api/projects/project-gallery-images/`
+  - Create: `http://localhost:8000/api/projects/project-gallery-images/`
+- **Description**: Manage project gallery images
+- **Query Parameters (GET)**:
+  - `project`: Filter by project ID
+- **Request Body (POST)**:
+  ```json
+  {
+    "project": 1,
+    "image": "<image_file>"
+  }
+  ```
+- **Response**: Gallery image object with image_url
+- **Status**: 200 OK / 201 Created
+  - Remove Image: `http://localhost:8000/api/projects/projects/1/gallery/5/`
+- **Description**: Add or remove gallery images from a project
+- **Request Body (POST)**:
+  ```json
+  {
+    "image": "<image_file>"
+  }
+  ```
+- **Response (POST)**: Created gallery image object
+  ```json
+  {
+    "id": 10,
+    "image_url": "https://cloudinary.com/..."
+  }
+  ```
+- **Status**: 201 Created (POST) / 204 No Content (DELETE)
+
+---
+
+### 10. **Packages - List / Create**
+- **Endpoint**: `GET /api/projects/packages/` | `POST /api/projects/packages/`
+- **Full URLs**: 
+  - List: `http://localhost:8000/api/projects/packages/`
+  - Create: `http://localhost:8000/api/projects/packages/`
+- **Description**: List and manage project packages with pricing and timelines
+- **Query Parameters (GET)**:
+  - `is_published`: Filter by published status (true/false)
+- **Request Body (POST)**:
+  ```json
+  {
+    "name": "Premium Package",
+    "slug": "premium-package",
+    "cover_image": "<image_file>",
+    "project_design_time": 30,
+    "project_manufacture_time": 45,
+    "project_installation_time": 15,
+    "basic_price": 5000.00,
+    "premium_price": 8000.00,
+    "support_service": "24/7 customer support and maintenance",
+    "is_published": true,
+    "items": [
+      {"product_id": 1},
+      {"product_id": 2}
+    ]
+  }
+  ```
+  
+  Required fields:
+  - `name`: required (max_length=100)
+  - `slug`: required (unique)
+  - `cover_image`: required (CloudinaryField)
+  - `project_design_time`: required (PositiveInteger - days)
+  - `project_manufacture_time`: required (PositiveInteger - days)
+  - `project_installation_time`: required (PositiveInteger - days)
+  - `basic_price`: required (Decimal)
+  - `premium_price`: required (Decimal)
+
+  Optional / nullable fields (not required):
+  - `support_service`: optional (TextField)
+  - `is_published`: optional (defaults to False)
+  - `items`: optional (nested array of PackageItems with product_id)
+
+- **Response**: List of packages or created package
+- **Status**: 200 OK / 201 Created
+
+---
+
+### 11. **Packages - Retrieve / Update / Delete**
+- **Endpoint**: `GET /api/projects/packages/{slug}/` | `PUT /api/projects/packages/{slug}/` | `DELETE /api/projects/packages/{slug}/`
+- **Full URLs**: 
+  - Get: `http://localhost:8000/api/projects/packages/premium-package/`
+  - Update: `http://localhost:8000/api/projects/packages/premium-package/`
+  - Delete: `http://localhost:8000/api/projects/packages/premium-package/`
+- **Description**: Get, update, or delete a specific package
+
+---
+
+### 12. **Package Items - List / Create**
+- **Endpoint**: `GET /api/projects/package-items/` | `POST /api/projects/package-items/`
+- **Full URLs**: 
+  - List: `http://localhost:8000/api/projects/package-items/`
+  - Create: `http://localhost:8000/api/projects/package-items/`
+- **Description**: List and manage individual items within packages
+- **Query Parameters (GET)**:
+  - `package`: Filter by package ID
+- **Request Body (POST)**:
+  ```json
+  {
+    "package": 1,
+    "product_id": 5
+  }
+  ```
+  
+  Required fields:
+  - `package`: required (ForeignKey to Package)
+  - `product_id`: required (PositiveInteger)
+
+- **Response**: List of package items or created item
+- **Status**: 200 OK / 201 Created
+
+---
+
+## Data Models Reference
+
+### **Project Model**
+```
+id: Integer (Primary Key)
+title: String (max_length=200, required)
+slug: String (unique, required)
+description: Text (required)
+cover_image: CloudinaryField (required)
+location: String (max_length=200, optional)
+date_completed: Date (optional, null=True)
+status: String (choices: "completed", "ongoing", "future", required)
+is_featured: Boolean (default=False)
+sector: ForeignKey to Sector (optional, null=True)
+services: ManyToMany to Service through ProjectServiceLink
+team: ForeignKey to TeamMember (optional, null=True, blank=True)
+created_at: DateTime (auto_now_add=True)
+```
+
+### **Sector Model**
+```
+id: Integer (Primary Key)
+name: String (max_length=100, unique, required)
+slug: String (unique, required)
+description: Text (optional)
+cover_image: CloudinaryField (optional, null=True)
+icon: CloudinaryField (optional, null=True)
+```
+
+### **Service Model**
+```
+id: Integer (Primary Key)
+name: String (max_length=100, required)
+slug: String (unique, required)
+description: Text (optional)
+cover_image: CloudinaryField (required)
+icon: CloudinaryField (optional, null=True)
+parent: ForeignKey to Service (self-referential, optional, null=True)
+type: String (choices: "service", "product", "both", required)
+is_ksp: Boolean (default=False)
+```
+
+### **ServiceList Model**
+```
+id: Integer (Primary Key)
+service: ForeignKey to Service (required)
+name: String (max_length=100, required)
+slug: String (required, must be unique per service)
+cover_image: CloudinaryField (optional, null=True)
+```
+
+### **ProjectGalleryImage Model**
+```
+id: Integer (Primary Key)
+project: ForeignKey to Project (required)
+image: CloudinaryField (required)
+```
+
+### **ProjectServiceLink Model** (Through table)
+```
+id: Integer (Primary Key)
+project: ForeignKey to Project (required)
+service: ForeignKey to Service (required)
+unique_together: (project, service)
+```
+
+### **Package Model**
+```
+id: Integer (Primary Key)
+name: String (max_length=100, required)
+slug: String (unique, required)
+cover_image: CloudinaryField (required)
+project_design_time: PositiveInteger (days, required)
+project_manufacture_time: PositiveInteger (days, required)
+project_installation_time: PositiveInteger (days, required)
+basic_price: Decimal (10 digits, 2 decimals, required)
+premium_price: Decimal (10 digits, 2 decimals, required)
+support_service: TextField (optional)
+is_published: Boolean (default=False)
+```
+
+### **PackageItem Model**
+```
+id: Integer (Primary Key)
+package: ForeignKey to Package (required)
+product_id: PositiveInteger (required)
+```
+
+---
+
+## Serializers Reference
+
+### **ProjectSerializer**
+Serializes the Project model with the following fields:
+- `id`: Integer (read-only)
+- `title`: String
+- `slug`: String
+- `description`: String
+- `cover_image`: ImageField (write-only on create/update)
+- `cover_image_url`: String (read-only, dynamically generated from Cloudinary)
+- `location`: String
+- `date_completed`: Date
+- `status`: String
+- `is_featured`: Boolean
+- `sector`: PrimaryKeyRelatedField (accepts Sector ID)
+- `services`: List of PrimaryKeyRelatedField (accepts Service IDs, many=True)
+- `gallery_images`: List of ProjectGalleryImageSerializer objects (read-only on GET, write-only nested on POST/PUT)
+
+**Features**:
+- Handles cover image upload to Cloudinary
+- Supports multiple services through ProjectServiceLink
+- Supports nested gallery images creation/update
+- Automatically manages gallery images (deletes old ones on update)
+- Handles services ManyToMany relationship (creates/updates ProjectServiceLink entries)
+
+### **SectorSerializer**
+Serializes the Sector model with the following fields:
+- `id`: Integer (read-only)
+- `name`: String
+- `slug`: String
+- `description`: String
+- `cover_image_url`: String (read-only, dynamically generated from Cloudinary)
+- `icon_url`: String (read-only, dynamically generated from Cloudinary)
+
+### **ServiceSerializer**
+Serializes the Service model with the following fields:
+- `id`: Integer (read-only)
+- `name`: String
+- `slug`: String
+- `description`: String
+- `cover_image`: ImageField (write-only on create/update)
+- `cover_image_url`: String (read-only, dynamically generated from Cloudinary)
+- `parent`: PrimaryKeyRelatedField (accepts Service ID, optional)
+- `type`: String (choices: service, product, both)
+- `is_ksp`: Boolean
+
+**Features**:
+- Handles image upload to Cloudinary
+- Supports self-referential parent-child relationships
+- Supports create and update operations with image handling
+
+### **ServiceListSerializer**
+Serializes the ServiceList model with the following fields:
+- `id`: Integer (read-only)
+- `name`: String
+- `slug`: String
+- `service`: Integer (ForeignKey to Service)
+- `cover_image_url`: String (read-only, dynamically generated from Cloudinary)
+
+### **ProjectGalleryImageSerializer**
+Serializes the ProjectGalleryImage model with the following fields:
+- `id`: Integer (read-only)
+- `image`: ImageField (write-only on create/update)
+- `image_url`: String (read-only, dynamically generated from Cloudinary)
+
+### **PackageSerializer**
+Serializes the Package model with the following fields:
+- `id`: Integer (read-only)
+- `name`: String
+- `slug`: String
+- `cover_image`: ImageField (write-only on create/update)
+- `cover_image_url`: String (read-only, dynamically generated from Cloudinary)
+- `project_design_time`: Integer
+- `project_manufacture_time`: Integer
+- `project_installation_time`: Integer
+- `basic_price`: Decimal
+- `premium_price`: Decimal
+- `support_service`: String
+- `is_published`: Boolean
+- `items`: List of PackageItemSerializer objects (nested)
+
+**Features**:
+- Handles cover image upload to Cloudinary
+- Supports nested package items creation/update
+- Automatically manages items (deletes old ones on update)
+
+### **PackageItemSerializer**
+Serializes the PackageItem model with the following fields:
+- `id`: Integer (read-only)
+- `product_id`: Integer
 
 ---
 

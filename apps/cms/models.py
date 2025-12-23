@@ -8,6 +8,8 @@ class Page(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
     content = models.TextField()
+    cover_image = CloudinaryField("image", blank=True, null=True)
+    brief = models.TextField(blank=True)
 
     def __str__(self):
         return self.title
