@@ -20,7 +20,6 @@ class ServiceViewSet(viewsets.ModelViewSet):
     serializer_class = ServiceSerializer
     permission_classes = [IsAdminOrReadOnly]
     parser_classes = [MultiPartParser, FormParser]
-    lookup_field = "slug"
 
     filter_backends = [DjangoFilterBackend]
     filterset_fields = [
@@ -34,7 +33,6 @@ class SectorViewSet(viewsets.ModelViewSet):
     serializer_class = SectorSerializer
     permission_classes = [IsAdminOrReadOnly]
     parser_classes = [MultiPartParser, FormParser]
-    lookup_field = "slug"
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -50,7 +48,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
     permission_classes = [IsAdminOrReadOnly]
     parser_classes = [MultiPartParser, FormParser]
-    lookup_field = "slug"
 
     filter_backends = [DjangoFilterBackend]
     filterset_fields = [
@@ -74,7 +71,6 @@ class PackageViewSet(viewsets.ModelViewSet):
     serializer_class = PackageSerializer
     permission_classes = [IsAdminOrReadOnly]
     parser_classes = [MultiPartParser, FormParser]
-    lookup_field = "slug"
 
     filter_backends = [DjangoFilterBackend]
     filterset_fields = [

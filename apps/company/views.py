@@ -43,7 +43,6 @@ class PartnerViewSet(viewsets.ModelViewSet):
     serializer_class = PartnerSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     parser_classes = [MultiPartParser, FormParser]
-    lookup_field = "slug"
     
 
 

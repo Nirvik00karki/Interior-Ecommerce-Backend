@@ -1,4 +1,5 @@
 from rest_framework.routers import DefaultRouter
+from django.urls import path
 from .views import PageViewSet, HeroSlideViewSet, MethodologyViewSet, FAQViewSet
 
 router = DefaultRouter()
@@ -7,4 +8,11 @@ router.register("hero-slides", HeroSlideViewSet)
 router.register("methodologies", MethodologyViewSet)
 router.register("faq", FAQViewSet)
 
-urlpatterns = router.urls
+urlpatterns = [
+    # slug-based detail route for customer-facing API
+    path(
+        "pages/<slug:slug>/",
+        PageViewSet.as_view({"get": "retrieve"}),
+        name="page-by-slug"
+    ),
+] + router.urls

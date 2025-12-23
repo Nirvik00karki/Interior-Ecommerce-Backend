@@ -1,4 +1,5 @@
 from rest_framework import routers
+from django.urls import path
 from .views import (
     CategoryViewSet,
     ProductViewSet,
@@ -16,4 +17,16 @@ router.register("variants", ProductVariantViewSet)
 router.register("attributes", ProductVariantAttributeViewSet)
 router.register("inventory", InventoryViewSet)
 
-urlpatterns = router.urls
+urlpatterns = [
+    # slug-based detail routes
+    path(
+        "categories/<slug:slug>/",
+        CategoryViewSet.as_view({"get": "retrieve"}),
+        name="category-by-slug"
+    ),
+    path(
+        "products/<slug:slug>/",
+        ProductViewSet.as_view({"get": "retrieve"}),
+        name="product-by-slug"
+    ),
+] + router.urls

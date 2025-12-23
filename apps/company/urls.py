@@ -1,4 +1,5 @@
 from rest_framework.routers import DefaultRouter
+from django.urls import path
 from .views import (
     OfficeViewSet, TeamMemberViewSet, AwardViewSet,
     PartnerViewSet, TestimonialViewSet, SocialMediaViewSet
@@ -12,4 +13,11 @@ router.register("partners", PartnerViewSet)
 router.register("testimonials", TestimonialViewSet)
 router.register("social-media", SocialMediaViewSet)
 
-urlpatterns = router.urls
+urlpatterns = [
+    # slug-based detail route for customer-facing API
+    path(
+        "partners/<slug:slug>/",
+        PartnerViewSet.as_view({"get": "retrieve"}),
+        name="partner-by-slug"
+    ),
+] + router.urls
