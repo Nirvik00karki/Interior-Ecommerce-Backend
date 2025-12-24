@@ -70,7 +70,7 @@ class PackageViewSet(viewsets.ModelViewSet):
     queryset = Package.objects.prefetch_related("items")
     serializer_class = PackageSerializer
     permission_classes = [IsAdminOrReadOnly]
-    parser_classes = [MultiPartParser, FormParser]    
+    parser_classes = [MultiPartParser, FormParser]
 
     filter_backends = [DjangoFilterBackend]
     filterset_fields = [
