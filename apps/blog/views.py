@@ -14,8 +14,7 @@ class BlogCategoryViewSet(viewsets.ModelViewSet):
     queryset = BlogCategory.objects.all()
     serializer_class = BlogCategorySerializer
     # Allow anyone to list/retrieve categories, require auth for create/update/delete
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    lookup_field = "id"
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]    
 
 
 @method_decorator(cache_page(CACHE_TIME), name="list")
@@ -24,7 +23,6 @@ class BlogPostViewSet(viewsets.ModelViewSet):
     serializer_class = BlogPostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     parser_classes = [MultiPartParser, FormParser]
-    lookup_field = "id"
 
     @transaction.atomic
     def perform_create(self, serializer):

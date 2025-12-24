@@ -42,10 +42,8 @@ class PartnerViewSet(viewsets.ModelViewSet):
     queryset = Partner.objects.all().order_by("name")
     serializer_class = PartnerSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    parser_classes = [MultiPartParser, FormParser]
-    lookup_field = "id"
+    parser_classes = [MultiPartParser, FormParser]    
     
-
 
 @method_decorator(cache_page(CACHE_TIME), name="list")
 class TestimonialViewSet(viewsets.ModelViewSet):

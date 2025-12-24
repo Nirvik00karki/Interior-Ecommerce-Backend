@@ -22,8 +22,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = [filters.SearchFilter]
     search_fields = ["name"]
-    parser_classes = [MultiPartParser, FormParser]
-    lookup_field = "id"
+    parser_classes = [MultiPartParser, FormParser]    
 
 
 # -------------------
@@ -34,8 +33,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all().select_related("category")
     serializer_class = ProductSerializer
     permission_classes = [IsAdminOrReadOnly]
-    parser_classes = [MultiPartParser, FormParser]
-    lookup_field = "id"
+    parser_classes = [MultiPartParser, FormParser]    
 
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["category", "is_active"]

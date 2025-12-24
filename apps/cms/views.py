@@ -13,8 +13,7 @@ class PageViewSet(viewsets.ModelViewSet):
     queryset = Page.objects.all()
     serializer_class = PageSerializer
     # Pages are publicly readable; editing requires authentication
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    lookup_field = "id"
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]    
 
 
 # @method_decorator(cache_page(CACHE_TIME), name="list")
