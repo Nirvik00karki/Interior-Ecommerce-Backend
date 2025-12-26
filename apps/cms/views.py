@@ -1,6 +1,9 @@
 from rest_framework import viewsets, permissions
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 
 from rest_framework.parsers import MultiPartParser, FormParser
 from .models import Page, HeroSlide, Methodology, FAQ
@@ -14,6 +17,12 @@ class PageViewSet(viewsets.ModelViewSet):
     serializer_class = PageSerializer
     # Pages are publicly readable; editing requires authentication
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]    
+
+    @action(detail=False, methods=["get"], url_path="slug/(?P<slug>[^/.]+)")
+    def retrieve_by_slug(self, request, slug=None):
+        page = get_object_or_404(Page, slug=slug)
+        serializer = self.get_serializer(page)
+        return Response(serializer.data)
 
 
 # @method_decorator(cache_page(CACHE_TIME), name="list")

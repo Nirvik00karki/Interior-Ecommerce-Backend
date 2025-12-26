@@ -55,7 +55,7 @@ class ProjectGalleryImageSerializer(serializers.ModelSerializer):
         return getattr(obj.image, "url", None)
 
 class ProjectSerializer(serializers.ModelSerializer):
-    cover_image = serializers.ImageField(write_only=True)
+    cover_image = serializers.ImageField(write_only=True, required=False, allow_null=True)
     cover_image_url = serializers.SerializerMethodField()
 
     sector = serializers.PrimaryKeyRelatedField(
@@ -195,7 +195,7 @@ class PackageItemSerializer(serializers.ModelSerializer):
         fields = ["id", "product_id"]
 
 class PackageSerializer(serializers.ModelSerializer):
-    cover_image = serializers.ImageField(write_only=True)
+    cover_image = serializers.ImageField(write_only=True, required=False, allow_null=True)
     cover_image_url = serializers.SerializerMethodField()
 
     items = PackageItemSerializer(many=True, required=False)

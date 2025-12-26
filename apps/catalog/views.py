@@ -11,6 +11,9 @@ from .serializers import (
 )
 from apps.accounts.permissions import IsAdminOrReadOnly
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 
 # -------------------
 # Category ViewSet
@@ -40,6 +43,12 @@ class ProductViewSet(viewsets.ModelViewSet):
     search_fields = ["name", "description"]
     ordering_fields = ["created_at", "updated_at"]
     ordering = ["-created_at"]
+    
+    @action(detail=False, methods=["get"], url_path="slug/(?P<slug>[^/.]+)")
+    def retrieve_by_slug(self, request, slug=None):
+        product = get_object_or_404(Product, slug=slug)
+        serializer = self.get_serializer(product)
+        return Response(serializer.data)
 
 
 # -------------------
