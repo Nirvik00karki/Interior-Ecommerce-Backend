@@ -1,5 +1,5 @@
 from rest_framework import routers
-from django.urls import path
+from django.urls import path, re_path
 from .views import (
     CategoryViewSet,
     ProductViewSet,
@@ -18,14 +18,14 @@ router.register("attributes", ProductVariantAttributeViewSet)
 router.register("inventory", InventoryViewSet)
 
 urlpatterns = [
-    # slug-based detail routes
-    path(
-        "categories/<slug:slug>/",
+    # slug-based detail routes (only match non-numeric slugs to avoid conflicting with pk-based routes)
+    re_path(
+        r"^categories/(?P<slug>(?!\d+$)[\w-]+)/$",
         CategoryViewSet.as_view({"get": "retrieve"}, lookup_field="slug", lookup_url_kwarg="slug"),
         name="category-by-slug"
     ),
-    path(
-        "products/<slug:slug>/",
+    re_path(
+        r"^products/(?P<slug>(?!\d+$)[\w-]+)/$",
         ProductViewSet.as_view({"get": "retrieve"}, lookup_field="slug", lookup_url_kwarg="slug"),
         name="product-by-slug"
     ),

@@ -1,5 +1,5 @@
 from rest_framework.routers import DefaultRouter
-from django.urls import path
+from django.urls import path, re_path
 from .views import (
     SectorViewSet,
     ServiceViewSet,
@@ -22,24 +22,24 @@ router.register(r"packages", PackageViewSet, basename="package")
 router.register(r"package-items", PackageItemViewSet, basename="package-item")
 
 urlpatterns = [
-    # slug-based detail routes for customer-facing APIs
-    path(
-        "sectors/<slug:slug>/",
+    # slug-based detail routes for customer-facing APIs (only match non-numeric slugs)
+    re_path(
+        r"^sectors/(?P<slug>(?!\d+$)[\w-]+)/$",
         SectorViewSet.as_view({"get": "retrieve"}, lookup_field="slug", lookup_url_kwarg="slug"),
         name="sector-by-slug"
     ),
-    path(
-        "services/<slug:slug>/",
+    re_path(
+        r"^services/(?P<slug>(?!\d+$)[\w-]+)/$",
         ServiceViewSet.as_view({"get": "retrieve"}, lookup_field="slug", lookup_url_kwarg="slug"),
         name="service-by-slug"
     ),
-    path(
-        "projects/<slug:slug>/",
+    re_path(
+        r"^projects/(?P<slug>(?!\d+$)[\w-]+)/$",
         ProjectViewSet.as_view({"get": "retrieve"}, lookup_field="slug", lookup_url_kwarg="slug"),
         name="project-by-slug"
     ),
-    path(
-        "packages/<slug:slug>/",
+    re_path(
+        r"^packages/(?P<slug>(?!\d+$)[\w-]+)/$",
         PackageViewSet.as_view({"get": "retrieve"}, lookup_field="slug", lookup_url_kwarg="slug"),
         name="package-by-slug"
     ),
