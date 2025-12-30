@@ -190,12 +190,15 @@ All endpoints use the base path: `/api/blog/`
 ---
 
 ### 2. **Blog Categories - Retrieve / Update / Delete**
-- **Endpoint**: `GET /api/blog/categories/{slug}/` | `PUT /api/blog/categories/{slug}/` | `DELETE /api/blog/categories/{slug}/`
+- **Endpoint**: `GET /api/blog/categories/slug/{slug}/` | `PUT /api/blog/categories/{id}/` | `DELETE /api/blog/categories/{id}/`
 - **Full URLs**: 
-  - Get: `http://localhost:8000/api/blog/categories/technology/`
-  - Update: `http://localhost:8000/api/blog/categories/technology/`
-  - Delete: `http://localhost:8000/api/blog/categories/technology/`
-- **Description**: Get, update, or delete a specific blog category
+  - Get: `http://localhost:8000/api/blog/categories/slug/technology/`
+  - Update: `http://localhost:8000/api/blog/categories/3/`
+  - Delete: `http://localhost:8000/api/blog/categories/3/`
+- **Description**: Get (by slug), update, or delete a specific blog category (update/delete use numeric ID)
+
+- **Alternate slug endpoint (action)**: `GET /api/blog/categories/slug/{slug}/`
+  - Get: `http://localhost:8000/api/blog/categories/slug/technology/`
 
 ---
 
@@ -234,12 +237,15 @@ All endpoints use the base path: `/api/blog/`
 ---
 
 ### 4. **Blog Posts - Retrieve / Update / Delete**
-- **Endpoint**: `GET /api/blog/posts/{slug}/` | `PUT /api/blog/posts/{slug}/` | `DELETE /api/blog/posts/{slug}/`
+- **Endpoint**: `GET /api/blog/posts/slug/{slug}/` | `PUT /api/blog/posts/{id}/` | `DELETE /api/blog/posts/{id}/`
 - **Full URLs**: 
-  - Get: `http://localhost:8000/api/blog/posts/interior-design-trends-2025/`
-  - Update: `http://localhost:8000/api/blog/posts/interior-design-trends-2025/`
-  - Delete: `http://localhost:8000/api/blog/posts/interior-design-trends-2025/`
-- **Description**: Get, update, or delete a specific blog post
+  - Get: `http://localhost:8000/api/blog/posts/slug/interior-design-trends-2025/`
+  - Update: `http://localhost:8000/api/blog/posts/123/`
+  - Delete: `http://localhost:8000/api/blog/posts/123/`
+- **Description**: Get (by slug), update, or delete a specific blog post (update/delete use numeric ID)
+
+- **Alternate slug endpoint (action)**: `GET /api/blog/posts/slug/{slug}/`
+  - Get: `http://localhost:8000/api/blog/posts/slug/interior-design-trends-2025/`
 
 ---
 
@@ -271,12 +277,15 @@ All endpoints use the base path: `/api/cms/`
 ---
 
 ### 1.5 **Pages - Retrieve / Update / Delete**
-- **Endpoint**: `GET /api/cms/pages/{slug}/` | `PUT /api/cms/pages/{slug}/` | `DELETE /api/cms/pages/{slug}/`
+- **Endpoint**: `GET /api/cms/pages/slug/{slug}/` | `PUT /api/cms/pages/{id}/` | `DELETE /api/cms/pages/{id}/`
 - **Full URLs**: 
-  - Get: `http://localhost:8000/api/cms/pages/about-us/`
-  - Update: `http://localhost:8000/api/cms/pages/about-us/`
-  - Delete: `http://localhost:8000/api/cms/pages/about-us/`
-- **Description**: Get, update, or delete a specific page
+  - Get: `http://localhost:8000/api/cms/pages/slug/about-us/`
+  - Update: `http://localhost:8000/api/cms/pages/5/`
+  - Delete: `http://localhost:8000/api/cms/pages/5/`
+- **Description**: Get (by slug), update, or delete a specific page (update/delete use numeric ID)
+
+- **Alternate slug endpoint (action)**: `GET /api/cms/pages/slug/{slug}/`
+  - Get: `http://localhost:8000/api/cms/pages/slug/about-us/`
 
 ---
 
@@ -450,6 +459,14 @@ All endpoints use the base path: `/api/company/`
   
   Optional / nullable fields (not required):
   - `logo`: optional (blank=True, null=True)
+
+### 5. **Partners - Retrieve / Update / Delete**
+- **Endpoint**: `GET /api/company/partners/slug/{slug}/` | `PUT /api/company/partners/{id}/` | `DELETE /api/company/partners/{id}/`
+- **Full URLs**:
+  - Get: `http://localhost:8000/api/company/partners/slug/furniture-co/`
+  - Update: `http://localhost:8000/api/company/partners/7/`
+  - Delete: `http://localhost:8000/api/company/partners/7/`
+- **Description**: Get (by slug), update, or delete a partner (update/delete use numeric ID)
   - `website_url`: optional (blank=True, null=True)
 - **Response**: List of partners or created partner
 - **Status**: 200 OK / 201 Created
@@ -521,8 +538,10 @@ All endpoints use the base path: `/api/catalog/`
 **Complete URLs**:
 - Local: `http://localhost:8000/api/catalog/`
 - Production: `https://interior-ecommerce-backend.onrender.com/api/catalog/`
- with slug-based lookup for most resources. Standard router patterns apply: `GET /resource/` (list), `POST /resource/` (create), `GET /resource/{slug}/` (retrieve), `PUT/PATCH /resource/{slug}/` (update), `DELETE /resource/{slug}/` (delete). Some resources (like Inventory) may use numeric ID lookup
-The `catalog` app uses a DRF router. Standard router patterns apply: `GET /resource/` (list), `POST /resource/` (create), `GET /resource/{id}/` (retrieve), `PUT/PATCH /resource/{id}/` (update), `DELETE /resource/{id}/` (delete).
+
+
+**Note on ID vs slug lookups**: Some apps expose a slug-based action for retrieval in addition to the standard router endpoints. Use `GET /resource/slug/{slug}/` to retrieve by slug when available. For updates and deletes, use the numeric ID endpoints: `PUT/PATCH /resource/{id}/` and `DELETE /resource/{id}/`. For catalog and many other standard resources the DRF router `GET /resource/{id}/` (retrieve), `PUT/PATCH /resource/{id}/` (update), and `DELETE /resource/{id}/` (delete) still apply.
+
 
 ### 1. **Categories - List / Create**
 - **Endpoint**: `GET /api/catalog/categories/` | `POST /api/catalog/categories/`
@@ -563,6 +582,15 @@ The `catalog` app uses a DRF router. Standard router patterns apply: `GET /resou
   - `is_active`: filter active products
   - `ordering`: `created_at`, `updated_at`
   - `page`: pagination
+
+---
+
+### 2.1 **Products - Retrieve by Slug (action)**
+- **Endpoint**: `GET /api/catalog/products/slug/{slug}/`
+- **Full URLs**:
+  - Get: `http://localhost:8000/api/catalog/products/slug/modern-sofa/`
+- **Description**: Retrieve a product by slug using the viewset action (useful to avoid PK/slug collisions)
+
 - **Request Body (POST)**:
   ```json
   {
@@ -922,12 +950,15 @@ All endpoints use the base path: `/api/projects/`
 ---
 
 ### 2. **Services - Retrieve / Update / Delete**
-- **Endpoint**: `GET /api/projects/services/{slug}/` | `PUT /api/projects/services/{slug}/` | `DELETE /api/projects/services/{slug}/`
+- **Endpoint**: `GET /api/projects/services/slug/{slug}/` | `PUT /api/projects/services/{id}/` | `DELETE /api/projects/services/{id}/`
 - **Full URLs**: 
-  - Get: `http://localhost:8000/api/projects/services/full-home-renovation/`
-  - Update: `http://localhost:8000/api/projects/services/full-home-renovation/`
-  - Delete: `http://localhost:8000/api/projects/services/full-home-renovation/`
-- **Description**: Get, update, or delete a specific service
+  - Get: `http://localhost:8000/api/projects/services/slug/full-home-renovation/`
+  - Update: `http://localhost:8000/api/projects/services/3/`
+  - Delete: `http://localhost:8000/api/projects/services/3/`
+- **Description**: Get (by slug), update, or delete a specific service (update/delete use numeric ID)
+
+- **Alternate slug endpoint (action)**: `GET /api/projects/services/slug/{slug}/`
+  - Get: `http://localhost:8000/api/projects/services/slug/full-home-renovation/`
 
 ---
 
@@ -961,12 +992,15 @@ All endpoints use the base path: `/api/projects/`
 ---
 
 ### 4. **Sectors - Retrieve / Update / Delete**
-- **Endpoint**: `GET /api/projects/sectors/{slug}/` | `PUT /api/projects/sectors/{slug}/` | `DELETE /api/projects/sectors/{slug}/`
+- **Endpoint**: `GET /api/projects/sectors/slug/{slug}/` | `PUT /api/projects/sectors/{id}/` | `DELETE /api/projects/sectors/{id}/`
 - **Full URLs**: 
-  - Get: `http://localhost:8000/api/projects/sectors/commercial/`
-  - Update: `http://localhost:8000/api/projects/sectors/commercial/`
-  - Delete: `http://localhost:8000/api/projects/sectors/commercial/`
-- **Description**: Get, update, or delete a specific sector
+  - Get: `http://localhost:8000/api/projects/sectors/slug/commercial/`
+  - Update: `http://localhost:8000/api/projects/sectors/4/`
+  - Delete: `http://localhost:8000/api/projects/sectors/4/`
+- **Description**: Get (by slug), update, or delete a specific sector (update/delete use numeric ID)
+
+- **Alternate slug endpoint (action)**: `GET /api/projects/sectors/slug/{slug}/`
+  - Get: `http://localhost:8000/api/projects/sectors/slug/commercial/`
 
 ---
 
@@ -1021,14 +1055,16 @@ All endpoints use the base path: `/api/projects/`
 
 ---
 
-### 8. **Projects - Retrieve / Update / Deletslug}/` | `PUT /api/projects/projects/{slug}/` | `DELETE /api/projects/projects/{slug}/`
+### 8. **Projects - Retrieve / Update / Delete**
+- **Endpoint**: `GET /api/projects/projects/slug/{slug}/` | `PUT /api/projects/projects/{id}/` | `DELETE /api/projects/projects/{id}/`
 - **Full URLs**: 
-  - Get: `http://localhost:8000/api/projects/e**
-- **Endpoint**: `GET /api/projects/projects/{slug}/` | `PUT /api/projects/projects/{slug}/` | `DELETE /api/projects/projects/{slug}/`
-- **Full URLs**: 
-  - Get: `http://localhost:8000/api/projects/projects/modern-apartment-redesign/`
-  - Update: `http://localhost:8000/api/projects/projects/modern-apartment-redesign/`
-  - Delete: `http://localhost:8000/api/projects/projects/modern-apartment-redesign
+  - Get: `http://localhost:8000/api/projects/projects/slug/modern-apartment-redesign/`
+  - Update: `http://localhost:8000/api/projects/projects/8/`
+  - Delete: `http://localhost:8000/api/projects/projects/8/`
+- **Description**: Get (by slug), update, or delete a project (update/delete use numeric ID)
+
+- **Alternate slug endpoint (action)**: `GET /api/projects/projects/slug/{slug}/`
+  - Get: `http://localhost:8000/api/projects/projects/slug/modern-apartment-redesign/`
   ```json
   {
     "id": 1,
@@ -1142,12 +1178,15 @@ All endpoints use the base path: `/api/projects/`
 ---
 
 ### 11. **Packages - Retrieve / Update / Delete**
-- **Endpoint**: `GET /api/projects/packages/{slug}/` | `PUT /api/projects/packages/{slug}/` | `DELETE /api/projects/packages/{slug}/`
+- **Endpoint**: `GET /api/projects/packages/slug/{slug}/` | `PUT /api/projects/packages/{id}/` | `DELETE /api/projects/packages/{id}/`
 - **Full URLs**: 
-  - Get: `http://localhost:8000/api/projects/packages/premium-package/`
-  - Update: `http://localhost:8000/api/projects/packages/premium-package/`
-  - Delete: `http://localhost:8000/api/projects/packages/premium-package/`
-- **Description**: Get, update, or delete a specific package
+  - Get: `http://localhost:8000/api/projects/packages/slug/premium-package/`
+  - Update: `http://localhost:8000/api/projects/packages/12/`
+  - Delete: `http://localhost:8000/api/projects/packages/12/`
+- **Description**: Get (by slug), update, or delete a specific package (update/delete use numeric ID)
+
+- **Alternate slug endpoint (action)**: `GET /api/projects/packages/slug/{slug}/`
+  - Get: `http://localhost:8000/api/projects/packages/slug/premium-package/`
 
 ---
 

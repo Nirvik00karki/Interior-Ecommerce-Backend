@@ -40,11 +40,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'interior-ecommerce-backend.onrender.com']
 
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:3000",
-#     "https://interior-ecommerce-backend.onrender.com"
-
-# ]
 CORS_ALLOW_ALL_ORIGINS = True
 # Application definition
 

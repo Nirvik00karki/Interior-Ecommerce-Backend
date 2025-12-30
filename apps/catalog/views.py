@@ -1,6 +1,6 @@
 from rest_framework import viewsets, permissions, filters
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Category, Product, ProductImage, ProductVariant, ProductVariantAttribute, Inventory
+from .models import Category, Product, ProductImage, ProductVariant, ProductVariantAttribute, Inventory, Attribute, AttributeValue
 from .serializers import (
     CategorySerializer,
     ProductSerializer,
@@ -8,12 +8,15 @@ from .serializers import (
     ProductVariantSerializer,
     ProductVariantAttributeSerializer,
     InventorySerializer,
+    AttributeSerializer,
+    AttributeValueSerializer
 )
 from apps.accounts.permissions import IsAdminOrReadOnly
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
+from rest_framework.parsers import JSONParser
 
 # -------------------
 # Category ViewSet
@@ -78,7 +81,17 @@ class ProductImageViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["product"]
 
+class AttributeViewSet(viewsets.ModelViewSet):
+    queryset = Attribute.objects.all()
+    serializer_class = AttributeSerializer
+    parser_classes = [JSONParser, FormParser, MultiPartParser]
 
+# AttributeValue API
+class AttributeValueViewSet(viewsets.ModelViewSet):
+    queryset = AttributeValue.objects.all()
+    serializer_class = AttributeValueSerializer
+    parser_classes = [JSONParser, FormParser, MultiPartParser]
+    
 # -------------------
 # Product Attributes ViewSet
 # -------------------

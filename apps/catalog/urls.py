@@ -7,6 +7,8 @@ from .views import (
     ProductVariantViewSet,
     ProductVariantAttributeViewSet,
     InventoryViewSet,
+    AttributeViewSet,
+    AttributeValueViewSet,
 )
 
 router = routers.DefaultRouter()
@@ -14,7 +16,9 @@ router.register("categories", CategoryViewSet)
 router.register("products", ProductViewSet)
 router.register("product-images", ProductImageViewSet)
 router.register("variants", ProductVariantViewSet)
-router.register("attributes", ProductVariantAttributeViewSet)
+router.register("attributes", AttributeViewSet)
+router.register("attribute-values", AttributeValueViewSet)
+router.register("variant-attributes", ProductVariantAttributeViewSet)
 router.register("inventory", InventoryViewSet)
 
 urlpatterns = [

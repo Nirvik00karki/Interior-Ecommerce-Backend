@@ -57,6 +57,19 @@ class ProductImageSerializer(serializers.ModelSerializer):
             instance.image = image
             instance.save()
         return instance
+    
+class AttributeValueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AttributeValue
+        fields = ["id", "value", "attribute"]
+
+# Serializer for Attribute (nested AttributeValues)
+class AttributeSerializer(serializers.ModelSerializer):
+    values = AttributeValueSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Attribute
+        fields = ["id", "name", "values"]
 
 # ---------------------------------------------------------
 # VARIANT ATTRIBUTE SERIALIZER
