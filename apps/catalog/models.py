@@ -106,7 +106,6 @@ class AttributeValue(models.Model):
         Attribute, on_delete=models.CASCADE, related_name="values"
     )
     value = models.CharField(max_length=100)
-    # Example: Red, Large, Wood Finish
 
     class Meta:
         unique_together = ("attribute", "value")
