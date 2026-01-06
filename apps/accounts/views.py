@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django.db import transaction
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer
+from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import (EmailTokenObtainPairSerializer, ShippingAddressSerializer
                           , ShippingZoneSerializer, AdminCreateUserSerializer)
@@ -51,9 +52,15 @@ class RegisterView(generics.CreateAPIView):
                 status=status.HTTP_201_CREATED,
             )
 
+        except ValidationError as e:
+            # Let DRF handle validation errors (e.g. "Email already exists")
+            raise e
         except Exception as e:
             transaction.set_rollback(True)
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Internal server error during registration.", "detail": str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 class EmailTokenObtainPairView(TokenObtainPairView):
     # Allow login via email without prior authentication

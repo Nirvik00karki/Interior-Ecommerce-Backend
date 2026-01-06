@@ -106,9 +106,9 @@ WSGI_APPLICATION = 'interior_backend.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.parse(
-        os.environ["DATABASE_URL"],   # force use of Render’s variable
+        os.environ.get("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/interior_db"),
         conn_max_age=600,
-        ssl_require=True,
+        ssl_require=not DEBUG,
     )
 }
 
