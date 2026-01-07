@@ -31,5 +31,6 @@ urlpatterns = [
     path('api/', include('apps.order.urls')),
     path("api/admin/", include("apps.order.admin_urls")),
     path("api/", include("apps.coupons.urls")),
+    path("api/wishlist/", include("apps.wishlist.urls")),
 
 ]

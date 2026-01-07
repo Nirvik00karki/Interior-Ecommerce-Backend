@@ -38,23 +38,10 @@ class RegisterView(generics.CreateAPIView):
 
             user = User.objects.get(id=response.data["id"])
 
-            # Try to send verification email, but don't fail registration if it fails
-            email_sent = True
-            error_message = None
-            try:
-                # Generate verification token
-                token = email_verification_token.make_token(user)
-                # Send verification email
-                send_verification_email(user, token)
-            except Exception as e:
-                email_sent = False
-                error_message = str(e)
-                # Log email failure (In a real app, use logger.error)
-                print(f"Error sending verification email: {e}")
-
-            message = "Registration successful. Please check your email to verify your account."
-            if not email_sent:
-                message = "Registration successful, but there was an error sending the verification email. Please contact support."
+            # Email verification disabled for testing
+            email_sent = False
+            error_message = "Email verification is currently disabled for testing purposes."
+            message = "Registration successful. You can now log in."
 
             return Response(
                 {

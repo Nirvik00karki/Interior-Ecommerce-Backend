@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'apps.api',
     'apps.order',
     'apps.coupons',
+    'apps.wishlist',
     'rest_framework',
     "rest_framework_simplejwt",
     'django_filters',
