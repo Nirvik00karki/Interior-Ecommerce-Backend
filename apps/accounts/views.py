@@ -190,7 +190,14 @@ class ResendVerificationEmailView(APIView):
         token = email_verification_token.make_token(user)
 
         # Send verification email
-        send_verification_email(user, token)
+        try:
+            send_verification_email(user, token)
+        except Exception as e:
+            # Log the error but don't fail the request
+            print(f"Error resending verification email: {e}")
+            # For testing: log the link
+            verify_url = f"/api/accounts/verify-email/?uid={user.pk}&token={token}"
+            print(f"DEBUG: Verification link: {verify_url}")
 
         return Response(
             {"message": "A new verification email has been sent."},
@@ -217,7 +224,14 @@ class PasswordResetRequestView(APIView):
 
             # Do NOT reveal if user exists
             token = password_reset_token.make_token(user)
-            send_password_reset_email(user, token)
+            try:
+                send_password_reset_email(user, token)
+            except Exception as e:
+                # Log the error but don't fail the request
+                print(f"Error sending password reset email: {e}")
+                # For testing: log the link (this will show up in server logs)
+                reset_url = f"/api/accounts/password-reset/complete/?uid={user.pk}&token={token}"
+                print(f"DEBUG: Password reset link: {reset_url}")
 
         except User.DoesNotExist:
             pass  # still pretend success

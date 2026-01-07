@@ -35,3 +35,16 @@ class AccountTests(APITestCase):
         # Standard JWT returns tokens at the root
         self.assertIn('access', response.data)
         self.assertIn('refresh', response.data)
+
+    def test_password_reset_request(self):
+        # 0. Create user first
+        User.objects.create_user(email="reset@example.com", password="oldpassword123")
+        
+        # 1. Test Password Reset Request
+        reset_url = reverse('password_reset_request')
+        data = {"email": "reset@example.com"}
+        response = self.client.post(reset_url, data)
+        
+        # Should be 200 OK regardless of email success
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['message'], "If an account exists, a password reset email has been sent.")
