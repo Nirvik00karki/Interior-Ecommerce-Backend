@@ -31,7 +31,20 @@ All endpoints use the base path: `/api/accounts/`
   - `last_name`: optional (blank=True)
   - `google_id`: optional on model (null=True) — note: API sets this via Google auth (read-only for registration)
   - `avatar`: optional on model (null=True) — read-only
-- **Response**: User created, returns token
+- **Response**: User created, returns token and verification status.
+  ```json
+  {
+    "message": "Registration successful. Please check your email to verify your account.",
+    "user": {
+      "id": 1,
+      "email": "user@example.com",
+      "first_name": "John",
+      "last_name": "Doe"
+    },
+    "email_sent": true,
+    "email_error": null
+  }
+  ```
 - **Status**: 201 Created
 
 ---
@@ -160,6 +173,41 @@ All endpoints use the base path: `/api/accounts/`
 
 ---
 
+### 10. **Shipping & Addresses**
+All endpoints use the base path: `/api/accounts/`
+
+#### 10.1 **List / Create Shipping Addresses**
+- **Endpoint**: `GET /api/accounts/shipping-addresses/` | `POST /api/accounts/shipping-addresses/`
+- **Description**: Manage user's saved shipping addresses.
+- **Request Body (POST)**:
+  ```json
+  {
+    "full_name": "John Doe",
+    "phone": "9800000000",
+    "address_line1": "Kathmandu, Nepal",
+    "address_line2": "Next to the mall",
+    "zone": 1,
+    "state": "Bagmati",
+    "postal_code": "44600",
+    "country": "Nepal"
+  }
+  ```
+- **Response**: List of addresses or created address object.
+- **Status**: 200 OK / 201 Created
+
+#### 10.2 **Get Shipping Cost**
+- **Endpoint**: `GET /api/accounts/shipping-cost/`
+- **Description**: Calculate shipping cost based on the user's primary (latest) address.
+- **Response**:
+  ```json
+  {
+    "shipping_cost": 100.00
+  }
+  ```
+- **Status**: 200 OK / 404 Not Found (if no address)
+
+---
+
 ## Blog Endpoints
 
 All endpoints use the base path: `/api/blog/`
@@ -218,10 +266,10 @@ All endpoints use the base path: `/api/blog/`
     "title": "Interior Design Trends 2025",
     "slug": "interior-design-trends-2025",
     "content": "Detailed blog content here...",
-    "cover_image": "",
+    "cover_image": "<image_file>",
     "blog_category": 1,
     "excerpt": "Short excerpt...",
-    "tags": ["design", "trends"],
+    "tags": "design, trends",
     "author": "Jane Author",
     "is_published": true
   }
@@ -229,7 +277,7 @@ All endpoints use the base path: `/api/blog/`
   
   Optional / nullable fields (not required):
   - `excerpt`: optional (blank=True)
-  - `tags`: optional (blank=True)
+  - `tags`: optional (string, e.g. "modern, sleek")
   - `blog_category`: nullable FK (null=True) — optional
 - **Response**: List of posts or created post
 - **Status**: 200 OK / 201 Created
@@ -603,12 +651,11 @@ All endpoints use the base path: `/api/catalog/`
   }
   ```
   
-  Optional / nullable fields (not required):
   - `description`: optional (blank=True, null=True)
   - `main_image`: optional (blank=True, null=True)
   - `category`: optional FK (null=True)
 
- - **Response**: Product JSON including `id`, `name`, `slug`, `main_image`, `is_active`, timestamps
+ - **Response**: Product JSON including `id`, `name`, `slug`, `main_image`, `is_active`, `average_rating`, `review_count`, timestamps
 - **Status**: 200 OK / 201 Created
 
 ---
@@ -758,7 +805,8 @@ Coupons are registered at the top-level `api/` (see main `urls.py`).
 - Deletion is prevented if `CouponUsage` entries exist for that coupon (API will return 400 error).
 
 ---
-s - Retrieve / Update / Delete**
+
+### 2. **Coupons - Retrieve / Update / Delete**
 - **Endpoint**: `GET /api/coupons/{code}/` | `PUT /api/coupons/{code}/` | `DELETE /api/coupons/{code}/`
 - **Full URLs**:
   - Get: `http://localhost:8000/api/coupons/WELCOME10/`
@@ -768,8 +816,7 @@ s - Retrieve / Update / Delete**
 
 ---
 
-### 3. **Coupon
-### 2. **Coupon Usage - List (Admin)**
+### 3. **Coupon Usage - List (Admin)**
 - **Endpoint**: `GET /api/coupon-usage/`
 - **Full URL**: `http://localhost:8000/api/coupon-usage/`
 - **Description**: Read-only list of coupon usage for admins. Returns records with `coupon`, `user`, `order`, `used_at`.
@@ -798,12 +845,9 @@ Orders and payments are registered at top-level `/api/`.
     "coupon_code": "WELCOME10"
   }
   ```
-  
-  Optional / nullable fields (not required):
   - `coupon_code`: optional (can be omitted or blank)
 
- - **Response**: Created order JSON (id, user, status, subtotal, shipping_cost, to
-- **Note**: Orders use numeric ID lookup (no slug field)tal, items, created_at)
+ - **Response**: Created order JSON (id, user, status, subtotal, shipping_cost, total, items, created_at)
 - **Status**: 201 Created
 
 ---
@@ -851,8 +895,7 @@ Orders and payments are registered at top-level `/api/`.
   ```json
   { "message": "Order cancelled." }
   ```
-- **Status**: 200 OK
-- **Note**: Payments use numeric ID lookup (no slug field) (or 400 on invalid state)
+- **Status**: 200 OK (or 400 on invalid state)
 
 ---
 
@@ -897,6 +940,107 @@ All endpoints use the base path: `/api/estimation/`
   ```
 - **Response**: List of categories or created category
 - **Status**: 200 OK / 201 Created
+
+---
+
+## Wishlist Endpoints
+
+All endpoints use the base path: `/api/wishlist/`
+
+### 1. **Wishlist items - List / Add**
+- **Endpoint**: `GET /api/wishlist/items/` | `POST /api/wishlist/items/`
+- **Description**: Manage user's personal wishlist.
+- **Request Body (POST)**:
+  ```json
+  {
+    "product": 1
+  }
+  ```
+- **Response**: List of wishlist items or created item.
+- **Note**: `product_details` are included in the response for display.
+- **Status**: 200 OK / 201 Created
+
+### 2. **Wishlist items - Remove**
+- **Endpoint**: `DELETE /api/wishlist/items/{id}/`
+- **Description**: Remove an item from wishlist using its primary ID.
+- **Status**: 204 No Content
+
+---
+
+## Shopping Cart Endpoints
+
+All endpoints use the base path: `/api/cart/`
+
+### 1. **Cart - View**
+- **Endpoint**: `GET /api/cart/`
+- **Description**: Get current user's cart (auto-created if not exists).
+- **Response**: Includes `items` (with `variant_details`), `total_price`, and `total_items`.
+- **Status**: 200 OK
+
+### 2. **Cart - Add Item**
+- **Endpoint**: `POST /api/cart/add-item/`
+- **Description**: Add a product variant to the cart.
+- **Request Body**:
+  ```json
+  {
+    "variant_id": 5,
+    "quantity": 2
+  }
+  ```
+- **Status**: 200 OK
+
+### 3. **Cart - Update Item**
+- **Endpoint**: `POST /api/cart/update-item/`
+- **Description**: Update quantity of an item in the cart.
+- **Request Body**:
+  ```json
+  {
+    "variant_id": 5,
+    "quantity": 3
+  }
+  ```
+- **Note**: Setting quantity to 0 removes the item.
+- **Status**: 200 OK
+
+### 4. **Cart - Remove Item**
+- **Endpoint**: `POST /api/cart/remove-item/`
+- **Description**: Remove a specific variant from the cart.
+- **Request Body**:
+  ```json
+  {
+    "variant_id": 5
+  }
+  ```
+- **Status**: 200 OK
+
+### 5. **Cart - Clear**
+- **Endpoint**: `POST /api/cart/clear/`
+- **Description**: Empty the entire cart.
+- **Status**: 200 OK
+
+---
+
+## Product Reviews & Ratings Endpoints
+
+All endpoints use the base path: `/api/reviews/`
+
+### 1. **Reviews - List**
+- **Endpoint**: `GET /api/reviews/`
+- **Description**: List all active reviews.
+- **Query Parameters**:
+  - `product`: Filter by product ID (Required for specific product reviews)
+  - `ordering`: `created_at`, `rating`
+- **Status**: 200 OK
+
+### 2. **Reviews - Create**
+- **Endpoint**: `POST /api/reviews/`
+- **Description**: Post a review for a product. (Authenticated only, one per product).
+- **Request Body (Multipart/Form-Data)**:
+  - `product`: integer (ID)
+  - `rating`: integer (1-5)
+  - `comment`: string (optional)
+  - `image`: file (optional)
+- **Status**: 201 Created
 
 ---
 

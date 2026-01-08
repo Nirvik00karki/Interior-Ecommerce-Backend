@@ -133,6 +133,8 @@ class ProductSerializer(serializers.ModelSerializer):
 
     min_price = serializers.SerializerMethodField()
     max_price = serializers.SerializerMethodField()
+    average_rating = serializers.SerializerMethodField()
+    review_count = serializers.SerializerMethodField()
 
     main_image_url = serializers.SerializerMethodField(read_only=True)
 
@@ -151,6 +153,8 @@ class ProductSerializer(serializers.ModelSerializer):
             "images",
             "variants",
             "is_active",
+            "average_rating",
+            "review_count",
         ]
 
     def get_main_image_url(self, obj):
@@ -179,6 +183,14 @@ class ProductSerializer(serializers.ModelSerializer):
     def get_max_price(self, obj):
         variant = obj.variants.order_by("-price").first()
         return variant.price if variant else None
+
+    def get_average_rating(self, obj):
+        from django.db.models import Avg
+        avg = obj.reviews.filter(is_active=True).aggregate(Avg("rating"))["rating__avg"]
+        return round(avg, 1) if avg else 0
+
+    def get_review_count(self, obj):
+        return obj.reviews.filter(is_active=True).count()
 
 
 # ---------------------------------------------------------
