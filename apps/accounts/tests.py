@@ -6,45 +6,42 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+from unittest.mock import patch
+
 class AccountTests(APITestCase):
-    def test_registration_and_login(self):
+    @patch('apps.accounts.views.send_verification_email')
+    def test_registration_success(self, mock_send_email):
         # 1. Test Registration
-        register_url = reverse('register')  # Assuming the name is 'register'
+        register_url = reverse('register')
         data = {
-            "email": "testuser@example.com",
+            "email": "testuser_new@example.com",
             "password": "testpassword123",
             "first_name": "Test",
             "last_name": "User"
         }
         response = self.client.post(register_url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['message'], "Registration successful. You can now log in.")
+        self.assertEqual(response.data['message'], "Registration successful. Please check your email to verify your account.")
         
-        # Verify user is active
-        user = User.objects.get(email="testuser@example.com")
-        self.assertTrue(user.is_active)
+        # Verify user is NOT active yet
+        user = User.objects.get(email="testuser_new@example.com")
+        self.assertFalse(user.is_active)
+        
+        # Verify email was "sent"
+        mock_send_email.assert_called_once()
 
-        # 2. Test Login
-        login_url = reverse('login')
-        login_data = {
-            "email": "testuser@example.com",
-            "password": "testpassword123"
-        }
-        response = self.client.post(login_url, login_data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # Standard JWT returns tokens at the root
-        self.assertIn('access', response.data)
-        self.assertIn('refresh', response.data)
-
-    def test_password_reset_request(self):
+    @patch('apps.accounts.views.send_password_reset_email')
+    def test_password_reset_request(self, mock_send_reset_email):
         # 0. Create user first
-        User.objects.create_user(email="reset@example.com", password="oldpassword123")
+        User.objects.create_user(email="reset_new@example.com", password="oldpassword123")
         
         # 1. Test Password Reset Request
         reset_url = reverse('password_reset_request')
-        data = {"email": "reset@example.com"}
+        data = {"email": "reset_new@example.com"}
         response = self.client.post(reset_url, data)
         
-        # Should be 200 OK regardless of email success
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['message'], "If an account exists, a password reset email has been sent.")
+        
+        # Verify reset email was "sent"
+        mock_send_reset_email.assert_called_once()

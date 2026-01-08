@@ -38,10 +38,23 @@ class RegisterView(generics.CreateAPIView):
 
             user = User.objects.get(id=response.data["id"])
 
-            # Email verification disabled for testing
-            email_sent = False
-            error_message = "Email verification is currently disabled for testing purposes."
-            message = "Registration successful. You can now log in."
+            # Try to send verification email, but don't fail registration if it fails
+            email_sent = True
+            error_message = None
+            try:
+                # Generate verification token
+                token = email_verification_token.make_token(user)
+                # Send verification email
+                send_verification_email(user, token)
+            except Exception as e:
+                email_sent = False
+                error_message = str(e)
+                # Log email failure (In a real app, use logger.error)
+                print(f"Error sending verification email: {e}")
+
+            message = "Registration successful. Please check your email to verify your account."
+            if not email_sent:
+                message = "Registration successful, but there was an error sending the verification email. Please contact support."
 
             return Response(
                 {
@@ -192,12 +205,12 @@ class ResendVerificationEmailView(APIView):
         # Send verification email
         try:
             send_verification_email(user, token)
-        except Exception as e:
-            # Log the error but don't fail the request
-            print(f"Error resending verification email: {e}")
-            # For testing: log the link
-            verify_url = f"/api/accounts/verify-email/?uid={user.pk}&token={token}"
-            print(f"DEBUG: Verification link: {verify_url}")
+        except Exception:
+            # Error is logged in email.py
+            return Response(
+                {"error": "There was an error sending the verification email. Please try again later."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
         return Response(
             {"message": "A new verification email has been sent."},
@@ -226,12 +239,10 @@ class PasswordResetRequestView(APIView):
             token = password_reset_token.make_token(user)
             try:
                 send_password_reset_email(user, token)
-            except Exception as e:
-                # Log the error but don't fail the request
-                print(f"Error sending password reset email: {e}")
-                # For testing: log the link (this will show up in server logs)
-                reset_url = f"/api/accounts/password-reset/complete/?uid={user.pk}&token={token}"
-                print(f"DEBUG: Password reset link: {reset_url}")
+            except Exception:
+                # Error is logged in email.py
+                # We still return 200 to avoid leaking information
+                pass
 
         except User.DoesNotExist:
             pass  # still pretend success

@@ -187,6 +187,7 @@ SIMPLE_JWT = {
 GOOGLE_CLIENT_ID = env.str("GOOGLE_CLIENT_ID", default="")
 SENDGRID_API_KEY = env.str("SENDGRID_API_KEY", default="")
 DEFAULT_FROM_EMAIL = "karkinirvik@gmail.com"
+FRONTEND_URL = env.str("FRONTEND_URL", default="http://localhost:3000")
 
 if "RENDER" in os.environ:
     # Production (Render)
