@@ -6,7 +6,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 def get_sendgrid_client():
-    return sendgrid.SendGridAPIClient(api_key=settings.SENDGRID_API_KEY)
+    key = settings.SENDGRID_API_KEY
+    if key:
+        print(f"DEBUG: Using SendGrid API Key starting with: {key[:10]}...")
+    else:
+        print("DEBUG: SendGrid API Key is MISSING in settings.")
+    return sendgrid.SendGridAPIClient(api_key=key)
 
 def send_verification_email(user, token):
     verify_url = f"{settings.FRONTEND_URL}/verify-email?token={token}&uid={user.pk}"
@@ -24,6 +29,7 @@ def send_verification_email(user, token):
 
     try:
         sg = get_sendgrid_client()
+        # Removed EU residency as per user feedback
         response = sg.send(message)
         logger.info(f"Verification email sent to {user.email}. Status Code: {response.status_code}")
         return response
@@ -48,6 +54,7 @@ def send_password_reset_email(user, token):
 
     try:
         sg = get_sendgrid_client()
+        # Removed EU residency as per user feedback
         response = sg.send(message)
         logger.info(f"Password reset email sent to {user.email}. Status Code: {response.status_code}")
         return response
