@@ -43,7 +43,7 @@ class ServiceSerializer(serializers.ModelSerializer):
             instance.save()
         return instance
 
-class ProjectGalleryImageSerializer(serializers.ModelSerializer):
+class ProjectGalleryImageNestedSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(write_only=True)
     image_url = serializers.SerializerMethodField(read_only=True)
 
@@ -53,6 +53,12 @@ class ProjectGalleryImageSerializer(serializers.ModelSerializer):
 
     def get_image_url(self, obj):
         return getattr(obj.image, "url", None)
+
+class ProjectGalleryImageSerializer(ProjectGalleryImageNestedSerializer):
+    project = serializers.PrimaryKeyRelatedField(queryset=Project.objects.all())
+
+    class Meta(ProjectGalleryImageNestedSerializer.Meta):
+        fields = ProjectGalleryImageNestedSerializer.Meta.fields + ["project"]
 
 class ProjectSerializer(serializers.ModelSerializer):
     cover_image = serializers.ImageField(write_only=True, required=False, allow_null=True)
@@ -67,7 +73,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         many=True
     )
 
-    gallery_images = ProjectGalleryImageSerializer(
+    gallery_images = ProjectGalleryImageNestedSerializer(
         many=True, required=False
     )
 
@@ -189,16 +195,22 @@ class SectorSerializer(serializers.ModelSerializer):
 
         return instance
     
-class PackageItemSerializer(serializers.ModelSerializer):
+class PackageItemNestedSerializer(serializers.ModelSerializer):
     class Meta:
         model = PackageItem
         fields = ["id", "product_id"]
+
+class PackageItemSerializer(PackageItemNestedSerializer):
+    package = serializers.PrimaryKeyRelatedField(queryset=Package.objects.all())
+
+    class Meta(PackageItemNestedSerializer.Meta):
+        fields = PackageItemNestedSerializer.Meta.fields + ["package"]
 
 class PackageSerializer(serializers.ModelSerializer):
     cover_image = serializers.ImageField(write_only=True, required=False, allow_null=True)
     cover_image_url = serializers.SerializerMethodField()
 
-    items = PackageItemSerializer(many=True, required=False)
+    items = PackageItemNestedSerializer(many=True, required=False)
 
     class Meta:
         model = Package
