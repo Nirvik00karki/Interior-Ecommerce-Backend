@@ -173,10 +173,77 @@ All endpoints use the base path: `/api/accounts/`
 
 ---
 
-### 10. **Shipping & Addresses**
+### 10. **User Profile - Get / Update**
+- **Endpoint**: `GET /api/accounts/profile/` | `PATCH /api/accounts/profile/`
+- **Full URL**: `http://localhost:8000/api/accounts/profile/`
+- **Description**: Retrieve or update the authenticated user's profile information
+- **Authentication**: Required (Bearer token)
+- **Request Headers**:
+  ```
+  Authorization: Bearer <your_access_token>
+  ```
+
+#### 10.1 GET - Retrieve User Profile
+- **Request**: No body required
+- **Response**: Current user's profile data
+  ```json
+  {
+    "id": 1,
+    "email": "user@example.com",
+    "first_name": "John",
+    "last_name": "Doe",
+    "full_name": "John Doe",
+    "google_id": null,
+    "avatar": null,
+    "is_staff": false
+  }
+  ```
+- **Status**: 200 OK
+
+#### 10.2 PATCH - Update User Profile
+- **Description**: Partial update of user profile (only send fields to update)
+- **Request Body**:
+  ```json
+  {
+    "first_name": "Jane",
+    "last_name": "Smith"
+  }
+  ```
+  
+  Or to update password:
+  ```json
+  {
+    "password": "newSecurePassword123"
+  }
+  ```
+  
+  Updatable fields:
+  - `first_name`: optional
+  - `last_name`: optional
+  - `password`: optional (will be hashed)
+  
+  **Note**: `email`, `google_id`, `avatar`, and `is_staff` are read-only
+- **Response**: Updated user profile
+  ```json
+  {
+    "id": 1,
+    "email": "user@example.com",
+    "first_name": "Jane",
+    "last_name": "Smith",
+    "full_name": "Jane Smith",
+    "google_id": null,
+    "avatar": null,
+    "is_staff": false
+  }
+  ```
+- **Status**: 200 OK / 400 Bad Request
+
+---
+
+### 11. **Shipping & Addresses**
 All endpoints use the base path: `/api/accounts/`
 
-#### 10.1 **List / Create Shipping Addresses**
+#### 11.1 **List / Create Shipping Addresses**
 - **Endpoint**: `GET /api/accounts/shipping-addresses/` | `POST /api/accounts/shipping-addresses/`
 - **Description**: Manage user's saved shipping addresses.
 - **Request Body (POST)**:
@@ -195,7 +262,7 @@ All endpoints use the base path: `/api/accounts/`
 - **Response**: List of addresses or created address object.
 - **Status**: 200 OK / 201 Created
 
-#### 10.2 **Get Shipping Cost**
+#### 11.2 **Get Shipping Cost**
 - **Endpoint**: `GET /api/accounts/shipping-cost/`
 - **Description**: Calculate shipping cost based on the user's primary (latest) address.
 - **Response**:

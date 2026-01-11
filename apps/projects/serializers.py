@@ -65,12 +65,15 @@ class ProjectSerializer(serializers.ModelSerializer):
     cover_image_url = serializers.SerializerMethodField()
 
     sector = serializers.PrimaryKeyRelatedField(
-        queryset=Sector.objects.all()
+        queryset=Sector.objects.all(),
+        required=False,
+        allow_null=True
     )
 
     services = serializers.PrimaryKeyRelatedField(
         queryset=Service.objects.all(),
-        many=True
+        many=True,
+        required=False
     )
 
     gallery_images = ProjectGalleryImageNestedSerializer(
