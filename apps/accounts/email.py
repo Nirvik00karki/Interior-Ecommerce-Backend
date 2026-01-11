@@ -5,12 +5,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Configure Brevo API
-configuration = sib_api_v3_sdk.Configuration()
-configuration.api_key['api-key'] = settings.BREVO_API_KEY
-
 def send_verification_email(user, token):
     verify_url = f"{settings.FRONTEND_URL}/verify-email?token={token}&uid={user.pk}"
+    
+    # Configure Brevo API
+    configuration = sib_api_v3_sdk.Configuration()
+    configuration.api_key['api-key'] = settings.BREVO_API_KEY
     
     api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
     
@@ -44,6 +44,10 @@ def send_verification_email(user, token):
 
 def send_password_reset_email(user, token):
     reset_url = f"{settings.FRONTEND_URL}/reset-password?uid={user.pk}&token={token}"
+    
+    # Configure Brevo API (must be done here to ensure settings are loaded)
+    configuration = sib_api_v3_sdk.Configuration()
+    configuration.api_key['api-key'] = settings.BREVO_API_KEY
     
     api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
     
