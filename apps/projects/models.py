@@ -65,6 +65,7 @@ class Project(models.Model):
         Sector,
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         related_name="projects"
     )
 
