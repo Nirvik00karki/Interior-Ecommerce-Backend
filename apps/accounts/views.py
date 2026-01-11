@@ -337,6 +337,31 @@ class ShippingZoneViewSet(viewsets.ModelViewSet):
 
         return Response({"shipping_cost": address.zone.cost})
     
+class UserProfileView(APIView):
+    """
+    GET: Retrieve the authenticated user's profile information
+    PATCH: Update the authenticated user's profile information
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        """Get current user's profile"""
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+
+    def patch(self, request):
+        """Update current user's profile (partial update)"""
+        serializer = UserSerializer(request.user, data=request.data, partial=True)
+        if serializer.is_valid():
+            # If password is being updated, handle it separately
+            if 'password' in request.data:
+                request.user.set_password(request.data['password'])
+                request.user.save()
+            else:
+                serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class AdminUserCreateView(generics.CreateAPIView):
     serializer_class = AdminCreateUserSerializer
     permission_classes = [ IsAdminOrSuperUser ]
