@@ -10,6 +10,19 @@ from .models import (
 )
 
 
+# Simple nested serializers for read-only display
+class SectorNestedSerializer(serializers.ModelSerializer):
+    """Lightweight serializer for nested sector display"""
+    class Meta:
+        model = Sector
+        fields = ["id", "name", "slug"]
+
+class ServiceNestedSerializer(serializers.ModelSerializer):
+    """Lightweight serializer for nested service display"""
+    class Meta:
+        model = Service
+        fields = ["id", "name", "slug"]
+
 class ServiceSerializer(serializers.ModelSerializer):
     parent = serializers.PrimaryKeyRelatedField(
         queryset=Service.objects.all(),
@@ -147,6 +160,17 @@ class ProjectSerializer(serializers.ModelSerializer):
                 )
 
         return instance
+
+class ProjectDetailSerializer(ProjectSerializer):
+    """
+    Extended Project serializer for detail views.
+    Returns nested objects for sector and services instead of just IDs.
+    """
+    sector = SectorNestedSerializer(read_only=True)
+    services = ServiceNestedSerializer(many=True, read_only=True)
+
+    class Meta(ProjectSerializer.Meta):
+        fields = ProjectSerializer.Meta.fields
 
 class SectorSerializer(serializers.ModelSerializer):
     cover_image = serializers.ImageField(write_only=True, required=False)

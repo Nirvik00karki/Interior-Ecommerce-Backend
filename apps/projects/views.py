@@ -10,7 +10,7 @@ from apps.accounts.permissions import IsAdminOrReadOnly
 
 from .models import Service, Project, ProjectGalleryImage, Package, PackageItem
 from .models import Sector
-from .serializers import (SectorSerializer, ServiceSerializer, ProjectSerializer, 
+from .serializers import (SectorSerializer, ServiceSerializer, ProjectSerializer, ProjectDetailSerializer,
                           ProjectGalleryImageSerializer, PackageSerializer, PackageItemSerializer)
 from rest_framework.parsers import MultiPartParser, FormParser
 from django_filters.rest_framework import DjangoFilterBackend
@@ -71,6 +71,15 @@ class ProjectViewSet(viewsets.ModelViewSet):
         "status",
         "is_featured",
     ]
+
+    def get_serializer_class(self):
+        """
+        Use ProjectDetailSerializer for retrieve actions (detail views).
+        Use ProjectSerializer for list, create, update actions.
+        """
+        if self.action in ['retrieve', 'retrieve_by_slug']:
+            return ProjectDetailSerializer
+        return ProjectSerializer
 
     @action(detail=False, methods=["get"], url_path="slug/(?P<slug>[^/.]+)")
     def retrieve_by_slug(self, request, slug=None):
