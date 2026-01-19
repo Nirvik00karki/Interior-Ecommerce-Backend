@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseU
 from django.db import models
 from django.utils import timezone
 from django.conf import settings
+from cloudinary.models import CloudinaryField
 
 
 class UserManager(BaseUserManager):
@@ -47,6 +48,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
+    profile_picture = models.CloudinaryField("image", blank=True, null=True)
 
     # Google login fields (optional)
     google_id = models.CharField(max_length=255, blank=True, null=True)
@@ -61,6 +63,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email
 
 class ShippingAddress(models.Model):
+    ADDRESS_LABELS = [
+        ("home", "Home"),
+        ("office", "Office"),
+    ]
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -80,8 +86,9 @@ class ShippingAddress(models.Model):
         related_name="shipping_addresses"
     )
     state = models.CharField(max_length=100)
-    postal_code = models.CharField(max_length=20)
     country = models.CharField(max_length=100, default="Nepal")
+    is_default = models.BooleanField(default=False)
+    label = models.CharField(max_length=20, choices=ADDRESS_LABELS, default="home")
 
     created_at = models.DateTimeField(auto_now_add=True)
 

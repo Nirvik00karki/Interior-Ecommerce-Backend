@@ -8,17 +8,23 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
     full_name = serializers.SerializerMethodField()
+    profile_picture_url = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = [
             "id", "email", "first_name", "last_name", "full_name",
-            "password", "google_id", "avatar", "is_staff",
+            "password", "google_id", "avatar", "is_staff", "profile_picture", "profile_picture_url",
         ]
-        read_only_fields = ("is_staff", "google_id", "avatar")
+        read_only_fields = ("is_staff", "google_id", "avatar", "profile_picture_url")
 
     def get_full_name(self, obj):
         return f"{obj.first_name} {obj.last_name}".strip()
+
+    def get_profile_picture_url(self, obj):
+        if obj.profile_picture:
+            return obj.profile_picture.url
+        return None
 
     def validate_email(self, email):
         if User.objects.filter(email=email).exists():
@@ -27,10 +33,26 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         password = validated_data.pop("password")
+        profile_picture = validated_data.pop("profile_picture", None)
         user = User(**validated_data)
         user.set_password(password)
         user.is_active = False
         user.save()
+        if profile_picture:
+            user.profile_picture = profile_picture
+            user.save()
+        return user
+    
+    def update(self, instance, validated_data):
+        password = validated_data.pop("password", None)
+        profile_picture = validated_data.pop("profile_picture", None)
+        user = super().update(instance, validated_data)
+        if password:
+            user.set_password(password)
+            user.save()
+        if profile_picture:
+            user.profile_picture = profile_picture
+            user.save()
         return user
 
 class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -59,17 +81,19 @@ class ShippingAddressSerializer(serializers.ModelSerializer):
             "phone",
             "address_line1",
             "address_line2",
+            "is_default",
+            "label",
             "zone",
             "state",
-            "postal_code",
             "country",
         ]
+        read_only_fields = ("is_default",)
 
 class ShippingZoneSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShippingZone
         fields = "__all__"
-        
+
 class AdminCreateUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
