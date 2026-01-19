@@ -107,11 +107,13 @@ WSGI_APPLICATION = 'interior_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+# Use ssl_require based on whether we're on Render (production) or not
+# Render's PostgreSQL requires SSL, local dev doesn't
 DATABASES = {
     'default': dj_database_url.parse(
         os.environ.get("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/interior_db"),
         conn_max_age=600,
-        ssl_require=not DEBUG,
+        ssl_require="RENDER" in os.environ,
     )
 }
 
