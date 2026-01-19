@@ -33,10 +33,10 @@ except Exception as e:
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-_ytl2gx8q@eg!#$&2#%3$^nd&ddc6!%v1eqgkk3ipy8&wg@g7%'
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool("DEBUG", default=True)
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'interior-ecommerce-backend.onrender.com']
 

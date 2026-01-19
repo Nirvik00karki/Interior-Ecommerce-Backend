@@ -48,7 +48,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
-    profile_picture = models.CloudinaryField("image", blank=True, null=True)
+    profile_picture = CloudinaryField("image", blank=True, null=True)
 
     # Google login fields (optional)
     google_id = models.CharField(max_length=255, blank=True, null=True)
