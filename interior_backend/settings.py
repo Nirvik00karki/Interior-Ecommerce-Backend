@@ -33,10 +33,10 @@ except Exception as e:
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env("SECRET_KEY")
+SECRET_KEY = 'django-insecure-_ytl2gx8q@eg!#$&2#%3$^nd&ddc6!%v1eqgkk3ipy8&wg@g7%'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool("DEBUG", default=True)
+DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'interior-ecommerce-backend.onrender.com']
 
@@ -107,13 +107,11 @@ WSGI_APPLICATION = 'interior_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-# Use ssl_require based on whether we're on Render (production) or not
-# Render's PostgreSQL requires SSL, local dev doesn't
 DATABASES = {
     'default': dj_database_url.parse(
         os.environ.get("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/interior_db"),
         conn_max_age=600,
-        ssl_require="RENDER" in os.environ,
+        ssl_require=not DEBUG,
     )
 }
 
