@@ -43,6 +43,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=255, blank=True)
 
     email = models.EmailField(unique=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
 
     # Required Django admin fields
     is_staff = models.BooleanField(default=False)
