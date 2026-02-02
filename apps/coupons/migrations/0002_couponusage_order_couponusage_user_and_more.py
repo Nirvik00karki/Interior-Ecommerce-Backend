@@ -14,19 +14,24 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='couponusage',
-            name='order',
-            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to='order.order'),
-        ),
-        migrations.AddField(
-            model_name='couponusage',
-            name='user',
-            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
-        ),
-        migrations.AlterField(
-            model_name='couponusage',
-            name='coupon',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='usages', to='coupons.coupon'),
-        ),
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.AddField(
+                    model_name='couponusage',
+                    name='order',
+                    field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='order.order'),
+                ),
+                migrations.AddField(
+                    model_name='couponusage',
+                    name='user',
+                    field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+                ),
+                migrations.AlterField(
+                    model_name='couponusage',
+                    name='coupon',
+                    field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='usages', to='coupons.coupon'),
+                ),
+            ],
+            database_operations=[]  # Skip DB ops on Render because columns already exist
+        )
     ]

@@ -69,9 +69,9 @@ class CouponCategoryRestriction(models.Model):
 
 class CouponUsage(models.Model):
     coupon = models.ForeignKey(Coupon, on_delete=models.CASCADE, related_name="usages")
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=None)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     used_at = models.DateTimeField(auto_now_add=True)
-    order = models.ForeignKey("order.Order", on_delete=models.CASCADE, default=None)
+    order = models.ForeignKey("order.Order", on_delete=models.CASCADE)
     
     def __str__(self):
         return f"{self.user.email} used {self.coupon.code}"
