@@ -864,7 +864,7 @@ Coupons are registered at the top-level `api/` (see main `urls.py`).
   - `usage_limit_per_user`: optional (null=True, blank=True)
   - `is_active`: optional (defaults to true)
 
-- **Response**: Created coupon object (id, code, discount_type, discount_value, valid_from, valid_until, ...)
+- **Response**: Created coupon object (id, code, discount_type, discount_value, valid_from, valid_to, ...)
 - **Status**: 200 OK / 201 Created
 
 **Behavior / Permissions**:

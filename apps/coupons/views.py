@@ -30,7 +30,6 @@ class CouponViewSet(viewsets.ModelViewSet):
         try:
             return super().create(request, *args, **kwargs)
         except Exception as e:
-            transaction.set_rollback(True)
             return Response({"error": str(e)}, status=400)
 
     @transaction.atomic
@@ -38,7 +37,6 @@ class CouponViewSet(viewsets.ModelViewSet):
         try:
             return super().update(request, *args, **kwargs)
         except Exception as e:
-            transaction.set_rollback(True)
             return Response({"error": str(e)}, status=400)
 
     def destroy(self, request, *args, **kwargs):

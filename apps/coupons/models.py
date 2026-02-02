@@ -39,7 +39,7 @@ class Coupon(models.Model):
         now = timezone.now()
         return (
             self.is_active and
-            self.valid_from <= now <= self.valid_until
+            self.valid_from <= now <= self.valid_to
         )
 
     def __str__(self):
@@ -68,7 +68,10 @@ class CouponCategoryRestriction(models.Model):
         return f"{self.coupon.code} → {self.category.name}"
 
 class CouponUsage(models.Model):
-    coupon = models.ForeignKey(Coupon, on_delete=models.CASCADE)
+    coupon = models.ForeignKey(Coupon, on_delete=models.CASCADE, related_name="usages")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     used_at = models.DateTimeField(auto_now_add=True)
     order = models.ForeignKey("order.Order", on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return f"{self.user.email} used {self.coupon.code}"

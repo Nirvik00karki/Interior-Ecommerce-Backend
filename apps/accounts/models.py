@@ -88,7 +88,7 @@ class ShippingAddress(models.Model):
     )
     state = models.CharField(max_length=100)
     country = models.CharField(max_length=100, default="Nepal")
-    is_default = models.BooleanField(default=False)
+    is_default = models.BooleanField(default=False, db_index=True)
     label = models.CharField(max_length=20, choices=ADDRESS_LABELS, default="home")
 
     created_at = models.DateTimeField(auto_now_add=True)

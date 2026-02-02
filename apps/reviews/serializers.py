@@ -25,10 +25,25 @@ class ReviewSerializer(serializers.ModelSerializer):
         return getattr(obj.image, "url", None)
 
     def create(self, validated_data):
+        from apps.order.models import Order, OrderItem
+        
         user = self.context["request"].user
-        # Check if already reviewed
         product = validated_data["product"]
+        
+        # Check if already reviewed
         if Review.objects.filter(user=user, product=product).exists():
             raise serializers.ValidationError("You have already reviewed this product.")
+        
+        # Check if user has purchased this product
+        has_purchased = OrderItem.objects.filter(
+            order__user=user,
+            order__status__in=["delivered", "completed"],
+            variant__product=product
+        ).exists()
+        
+        if not has_purchased:
+            raise serializers.ValidationError(
+                "You can only review products you have purchased and received."
+            )
         
         return Review.objects.create(user=user, **validated_data)

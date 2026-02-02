@@ -8,7 +8,7 @@ class ContactSubmission(models.Model):
     email = models.EmailField()
     phone = models.CharField(max_length=30, blank=True)
     message = models.TextField()
-    is_read = models.BooleanField(default=False)
+    is_read = models.BooleanField(default=False, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

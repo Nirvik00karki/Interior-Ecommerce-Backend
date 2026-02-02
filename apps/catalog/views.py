@@ -103,7 +103,7 @@ class ProductVariantAttributeViewSet(viewsets.ModelViewSet):
     parser_classes = [MultiPartParser, FormParser]
 
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["product", "variant"]
+    filterset_fields = ["variant"]
     
 # -------------------
 # Inventory ViewSet

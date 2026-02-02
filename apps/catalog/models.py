@@ -50,6 +50,10 @@ class Product(models.Model):
 
     is_active = models.BooleanField(default=True)
 
+    # Cached fields for performance
+    average_rating = models.DecimalField(max_digits=3, decimal_places=1, default=0, null=True, blank=True)
+    review_count = models.PositiveIntegerField(default=0, null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -168,7 +172,7 @@ class Inventory(models.Model):
         on_delete=models.CASCADE,
         related_name="inventory"
     )
-    quantity = models.PositiveIntegerField(default=0)
+    stock = models.PositiveIntegerField(default=0)
     low_stock_threshold = models.PositiveIntegerField(default=0)
     updated_at = models.DateTimeField(auto_now=True)
     reserved_stock = models.PositiveIntegerField(default=0)
@@ -178,4 +182,4 @@ class Inventory(models.Model):
         return self.stock - self.reserved_stock
 
     def __str__(self):
-        return f"{self.product_variant.sku} | Stock: {self.stock} | Reserved: {self.reserved_stock}"
+        return f"{self.variant.sku} | Stock: {self.stock} | Reserved: {self.reserved_stock}"

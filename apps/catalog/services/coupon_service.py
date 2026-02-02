@@ -50,7 +50,7 @@ class CouponService:
         Returns the discounted price based on coupon type.
         """
 
-        if coupon.discount_type == "percentage":
+        if coupon.discount_type == "percent":
             discount = (order_total * coupon.discount_value) / 100
         else:
             discount = coupon.discount_value

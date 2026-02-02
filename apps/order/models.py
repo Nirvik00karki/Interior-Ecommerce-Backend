@@ -14,7 +14,9 @@ class Order(models.Model):
         ("processing", "Processing"),
         ("shipped", "Shipped"),
         ("delivered", "Delivered"),
+        ("completed", "Completed"),
         ("cancelled", "Cancelled"),
+        ("refunded", "Refunded"),
     ]
 
     user = models.ForeignKey(
@@ -87,6 +89,10 @@ class Order(models.Model):
         Move reserved stock into actual sold stock.
         Should be triggered when payment succeeds.
         """
+        # Idempotency check - prevent double deduction
+        if self.status == 'completed':
+            return
+        
         for item in self.items.all():
             inventory = (
                 Inventory.objects
@@ -94,9 +100,10 @@ class Order(models.Model):
                 .get(variant=item.variant)
             )
 
-            if inventory.available_stock < item.quantity:
+            # Verify we have enough reserved stock
+            if inventory.reserved_stock < item.quantity:
                 raise ValidationError(
-                    f"Stock error while committing {item.variant.sku}"
+                    f"Reserved stock mismatch for {item.variant.sku}"
                 )
 
             inventory.reserved_stock -= item.quantity

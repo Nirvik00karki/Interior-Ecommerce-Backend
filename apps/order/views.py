@@ -76,8 +76,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             try:
                 order.reserve_stock()
             except Exception as e:
-                transaction.set_rollback(True)
-                order.delete()
+                # Let @transaction.atomic handle rollback
                 return Response({"error": str(e)}, status=400)
 
             return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
@@ -97,14 +96,9 @@ class OrderViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Restore inventory
-        for item in order.items.all():
-            inv = item.variant.inventory
-            inv.stock += item.quantity
-            inv.save()
-
-        order.status = "cancelled"
+        # Release reserved stock
         order.release_stock()
+        order.status = "cancelled"
         order.save()
 
         return Response({"message": "Order cancelled."}, status=status.HTTP_200_OK)

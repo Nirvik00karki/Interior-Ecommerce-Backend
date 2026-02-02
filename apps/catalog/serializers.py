@@ -58,19 +58,6 @@ class ProductImageSerializer(serializers.ModelSerializer):
             instance.save()
         return instance
     
-class AttributeValueSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AttributeValue
-        fields = ["id", "value", "attribute"]
-
-# Serializer for Attribute (nested AttributeValues)
-class AttributeSerializer(serializers.ModelSerializer):
-    values = AttributeValueSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Attribute
-        fields = ["id", "name", "values"]
-
 # ---------------------------------------------------------
 # VARIANT ATTRIBUTE SERIALIZER
 # ---------------------------------------------------------
@@ -184,13 +171,12 @@ class ProductSerializer(serializers.ModelSerializer):
         variant = obj.variants.order_by("-price").first()
         return variant.price if variant else None
 
+    # Rating fields are now cached in model, no need to calculate
     def get_average_rating(self, obj):
-        from django.db.models import Avg
-        avg = obj.reviews.filter(is_active=True).aggregate(Avg("rating"))["rating__avg"]
-        return round(avg, 1) if avg else 0
+        return float(obj.average_rating)
 
     def get_review_count(self, obj):
-        return obj.reviews.filter(is_active=True).count()
+        return obj.review_count
 
 
 # ---------------------------------------------------------
@@ -232,6 +218,7 @@ class CategorySerializer(serializers.ModelSerializer):
 # ---------------------------------------------------------
 class InventorySerializer(serializers.ModelSerializer):
     variant_sku = serializers.CharField(source="variant.sku", read_only=True)
+    available_stock = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Inventory
@@ -239,8 +226,10 @@ class InventorySerializer(serializers.ModelSerializer):
             "id",
             "variant",
             "variant_sku",
-            "quantity",
+            "stock",
+            "reserved_stock",
+            "available_stock",
             "low_stock_threshold",
             "updated_at",
         ]
-        read_only_fields = ["updated_at"]
+        read_only_fields = ["updated_at", "available_stock"]

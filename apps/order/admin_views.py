@@ -73,9 +73,10 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
         if order.status not in ["completed", "shipped"]:
             return Response({"error": "Only shipped or completed orders can be refunded"}, status=400)
 
-        # Restore inventory for all items
+        # Restore inventory for all items with locking
         for item in order.items.all():
-            inv = item.variant.inventory
+            from apps.catalog.models import Inventory
+            inv = Inventory.objects.select_for_update().get(variant=item.variant)
             inv.stock += item.quantity
             inv.save()
 

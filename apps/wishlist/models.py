@@ -6,7 +6,8 @@ class Wishlist(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="wishlist_items"
+        related_name="wishlist_items",
+        db_index=True
     )
     product = models.ForeignKey(
         Product,

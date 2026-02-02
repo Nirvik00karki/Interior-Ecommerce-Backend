@@ -35,7 +35,7 @@ class OrderItemCreateSerializer(serializers.Serializer):
 
         # Check inventory
         inv = Inventory.objects.filter(variant=variant).first()
-        if not inv or inv.stock < quantity:
+        if not inv or inv.available_stock < quantity:
             raise serializers.ValidationError("Not enough stock for this item.")
 
         attrs["variant"] = variant
@@ -90,7 +90,7 @@ class OrderCreateSerializer(serializers.Serializer):
         if not shipping_address.zone:
             raise serializers.ValidationError("Shipping zone not set for this address.")
 
-        data["shipping_cost"] = float(shipping_address.zone.cost)
+        data["shipping_cost"] = Decimal(str(shipping_address.zone.cost))
 
         # ------------------------------
         # 2. Validate and price cart items
@@ -115,7 +115,7 @@ class OrderCreateSerializer(serializers.Serializer):
 
             inv = variant.inventory
 
-            if inv.stock < quantity:
+            if inv.available_stock < quantity:
                 raise serializers.ValidationError(
                     f"Insufficient stock for {variant.product.name} (Variant {variant_id})."
                 )
@@ -131,7 +131,7 @@ class OrderCreateSerializer(serializers.Serializer):
             })
 
         data["validated_items"] = validated_items
-        data["subtotal"] = float(subtotal)
+        data["subtotal"] = Decimal(str(subtotal))
 
         # ------------------------------
         # 3. Validate coupon if provided
