@@ -106,14 +106,13 @@ class OrderCreateSerializer(serializers.Serializer):
             try:
                 variant = (
                     ProductVariant.objects
-                    .select_related("inventory", "product")
+                    .select_related("product")
                     .select_for_update()
                     .get(id=variant_id)
                 )
-            except ProductVariant.DoesNotExist:
-                raise serializers.ValidationError(f"Variant {variant_id} does not exist.")
+                # Lock inventory separately to avoid "FOR UPDATE cannot be applied to outer join" error
+                inv = Inventory.objects.select_for_update().get(variant=variant)
 
-            inv = variant.inventory
 
             if inv.available_stock < quantity:
                 raise serializers.ValidationError(
