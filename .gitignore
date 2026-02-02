@@ -19,6 +19,7 @@ db.sqlite3.bak
 # Django stuff:
 staticfiles/
 media/
+tests/
 
 # Migrations - keep migration files, but ignore compiled files
 **/migrations/__pycache__/

@@ -57,7 +57,7 @@ class UserSerializer(serializers.ModelSerializer):
         return email
     
     def get_default_address(self, obj):
-        address = obj.addresses.filter(is_default=True).first()
+        address = obj.shipping_addresses.filter(is_default=True).first()
         return ShippingAddressSerializer(address).data if address else None
 
     def create(self, validated_data):
