@@ -112,7 +112,10 @@ class OrderCreateSerializer(serializers.Serializer):
                 )
                 # Lock inventory separately to avoid "FOR UPDATE cannot be applied to outer join" error
                 inv = Inventory.objects.select_for_update().get(variant=variant)
-
+            except Inventory.DoesNotExist:
+                raise serializers.ValidationError(
+                    f"Inventory not found for {variant.product.name} (Variant {variant_id})."
+                )
 
             if inv.available_stock < quantity:
                 raise serializers.ValidationError(
