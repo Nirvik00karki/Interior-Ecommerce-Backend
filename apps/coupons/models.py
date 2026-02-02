@@ -62,16 +62,16 @@ class CouponCategoryRestriction(models.Model):
     Restrict coupon to specific categories.
     """
     coupon = models.ForeignKey(Coupon, on_delete=models.CASCADE, related_name="category_restrictions")
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey("catalog.Category", on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.coupon.code} → {self.category.name}"
 
 class CouponUsage(models.Model):
     coupon = models.ForeignKey(Coupon, on_delete=models.CASCADE, related_name="usages")
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=None)
     used_at = models.DateTimeField(auto_now_add=True)
-    order = models.ForeignKey("order.Order", on_delete=models.CASCADE)
+    order = models.ForeignKey("order.Order", on_delete=models.CASCADE, default=None)
     
     def __str__(self):
         return f"{self.user.email} used {self.coupon.code}"
