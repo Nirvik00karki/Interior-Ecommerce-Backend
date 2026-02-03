@@ -23,7 +23,7 @@ router.register("inventory", InventoryViewSet)
 
 urlpatterns = [
     re_path(
-        r"^categories/(?P<slug>(?!\d+$)[\w-]+)/$",
+        r"^categories/(?P<slug>(?!\d+(?:/|$))[\w-]+)/$",
         CategoryViewSet.as_view({"get": "retrieve"}, lookup_field="slug", lookup_url_kwarg="slug"),
         name="category-by-slug"
     ),

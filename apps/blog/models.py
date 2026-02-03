@@ -6,16 +6,16 @@ from django.conf import settings
 
 
 class BlogCategory(models.Model):
-    name = models.CharField(max_length=150)
-    slug = models.SlugField(unique=True)
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255, unique=True)
 
     def __str__(self):
         return self.name
 
 
 class BlogPost(models.Model):
-    title = models.CharField(max_length=200)
-    slug = models.SlugField(unique=True)
+    title = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255, unique=True)
     cover_image = CloudinaryField("image")
     excerpt = models.TextField(blank=True)
     content = models.TextField()
