@@ -29,10 +29,9 @@ class CartViewSet(viewsets.ModelViewSet):
             variant = ProductVariant.objects.get(id=variant_id)
         except ProductVariant.DoesNotExist:
             return Response({"error": "Invalid variant ID"}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Check stock availability
-        inv = Inventory.objects.filter(variant=variant).first()
-        if not inv:
+        try:
+            inv = variant.inventory
+        except Inventory.DoesNotExist:
             return Response({"error": "Inventory not found for this product"}, status=status.HTTP_400_BAD_REQUEST)
         
         # Get existing cart quantity if adding to existing item
