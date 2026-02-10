@@ -33,9 +33,13 @@ class OrderItemCreateSerializer(serializers.Serializer):
         except ProductVariant.DoesNotExist:
             raise serializers.ValidationError("Invalid variant.")
 
-        # Check inventory
-        inv = Inventory.objects.filter(variant=variant).first()
-        if not inv or inv.available_stock < quantity:
+        # Check inventory - use OneToOne relationship
+        try:
+            inv = variant.inventory
+        except Inventory.DoesNotExist:
+            raise serializers.ValidationError("Inventory not found for this item.")
+        
+        if inv.available_stock < quantity:
             raise serializers.ValidationError("Not enough stock for this item.")
 
         attrs["variant"] = variant
