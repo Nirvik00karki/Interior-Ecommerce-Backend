@@ -821,28 +821,28 @@ All endpoints use the base path: `/api/catalog/`
 ### 6. **Inventory - List / Create / Update**
 - **Endpoint**: `GET /api/catalog/inventory/` | `POST /api/catalog/inventory/` | `PUT/PATCH /api/catalog/inventory/{id}/`
 - **Full URLs**:
-  - List: `http://localhost:8000/api/catalog/inventory/`
-  - Create: `http://localhost:8000/api/catalog/inventory/`
-  - Update: `http://localhost:8000/api/catalog/inventory/1/`
-- **Note**: Inventory uses numeric ID lookup (no slug field)
-- **Description**: Inventory entries are linked to `ProductVariant` and track `quantity`, `reserved_stock`, and thresholds.
+  - Local: `http://localhost:8000/api/catalog/inventory/`
+  - Production: `https://interior-ecommerce-backend.onrender.com/api/catalog/inventory/`
+- **Note**: Inventory uses numeric ID lookup (no slug field).
+- **Description**: Inventory entries are linked to `ProductVariant` and track `stock`, `reserved_stock`, and thresholds.
 - **Request Body (POST/PUT)**:
   ```json
   {
     "variant": 1,
-    "quantity": 100,
+    "stock": 100,
     "low_stock_threshold": 5
   }
   ```
  - **Response**: Inventory object
 - **Status**: 200 OK / 201 Created
   
-  Optional / nullable fields (not required):
+  **Fields Explanation**:
   - `variant`: required (OneToOne relation to ProductVariant)
-  - `quantity`: required (defaults to 0 if omitted)
-  - `low_stock_threshold`: required (defaults to 0 if omitted)
-  - `reserved_stock`: managed by system (optional, default 0) — do not set unless admin API supports it
-  - `updated_at`: read-only (auto populated)
+  - `stock`: required (total physical stock)
+  - `low_stock_threshold`: optional (defaults to 0)
+  - `reserved_stock`: **read-only** (managed by system during order creation)
+  - `available_stock`: **read-only** (calculated as `stock - reserved_stock`)
+  - `updated_at`: **read-only** (auto populated)
 
 ---
 

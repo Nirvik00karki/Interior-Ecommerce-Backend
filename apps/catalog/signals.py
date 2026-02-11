@@ -12,5 +12,5 @@ def create_inventory_for_variant(sender, instance, created, **kwargs):
     if created:
         Inventory.objects.get_or_create(
             variant=instance,
-            defaults={"stock": 0, "low_stock_threshold": 10}
+            defaults={"stock": 10, "low_stock_threshold": 5}
         )
