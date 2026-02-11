@@ -80,16 +80,34 @@ class ProductVariantSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(write_only=True, required=False, allow_null=True)
     image_url = serializers.SerializerMethodField(read_only=True)
     attributes = ProductVariantAttributeSerializer(many=True, read_only=True)
+    
+    # Stock is now read from the Inventory model
+    stock = serializers.SerializerMethodField(read_only=True)
+    available_stock = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = ProductVariant
         fields = [
-            "id","product", "sku", "name", "price", "stock",
+            "id","product", "sku", "name", "price", "stock", "available_stock",
             "image", "image_url", "is_active", "attributes"
         ]
 
     def get_image_url(self, obj):
         return getattr(obj.image, "url", None)
+    
+    def get_stock(self, obj):
+        """Get total stock from Inventory model"""
+        try:
+            return obj.inventory.stock
+        except Inventory.DoesNotExist:
+            return 0
+    
+    def get_available_stock(self, obj):
+        """Get available stock (total - reserved) from Inventory model"""
+        try:
+            return obj.inventory.available_stock
+        except Inventory.DoesNotExist:
+            return 0
 
     def create(self, validated_data):
         image = validated_data.pop("image", None)

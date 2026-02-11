@@ -4,7 +4,7 @@ from django.contrib import admin
 from .models import (
     Category, Product, ProductImage,
     Attribute, AttributeValue,
-    ProductVariant, ProductVariantAttribute
+    ProductVariant, ProductVariantAttribute, Inventory
 )
 
 
@@ -83,10 +83,18 @@ class AttributeValueAdmin(admin.ModelAdmin):
 @admin.register(ProductVariant)
 class ProductVariantAdmin(admin.ModelAdmin):
     list_display = (
-        "product", "name", "sku", "price",
-        "stock", "is_active", "created_at"
+        "product", "name", "sku", "price", "is_active", "created_at"
     )
     list_filter = ("is_active", "product")
     search_fields = ("sku", "name")
     inlines = [ProductVariantAttributeInline]
-    ordering = ("product", "sku")
+    ordering = ("product",)
+
+# ---------------------------------------------------------
+# INVENTORY ADMIN
+# ---------------------------------------------------------
+@admin.register(Inventory)
+class InventoryAdmin(admin.ModelAdmin):
+    list_display = ("variant", "stock")
+    list_filter = ("variant__product__category", "variant__product", "variant")
+    ordering = ("variant__product",)
