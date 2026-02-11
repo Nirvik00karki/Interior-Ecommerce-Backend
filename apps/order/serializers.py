@@ -266,3 +266,6 @@ class ApplyCouponSerializer(serializers.Serializer):
 
         data["coupon"] = coupon
         return data
+
+class OrderStatusUpdateSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(choices=Order.STATUS_CHOICES)

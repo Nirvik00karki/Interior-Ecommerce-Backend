@@ -273,6 +273,24 @@ All endpoints use the base path: `/api/accounts/`
   ```
 - **Status**: 200 OK / 404 Not Found (if no address)
 
+#### 11.3 **Shipping Zones - List / Create**
+- **Endpoint**: `GET /api/accounts/shipping-zones/` | `POST /api/accounts/shipping-zones/`
+- **Description**: Manage shipping zones and their associated costs.
+- **Request Body (POST)**:
+  ```json
+  {
+    "name": "inside_valley",
+    "cost": "50.00"
+  }
+  ```
+  
+  **Available Names (choices)**:
+  - `inside_valley`: Inside Kathmandu Valley
+  - `outside_valley`: Outside Kathmandu Valley
+
+- **Response**: List of zones or created zone object.
+- **Status**: 200 OK / 201 Created
+
 ---
 
 ## Blog Endpoints
@@ -757,7 +775,7 @@ All endpoints use the base path: `/api/catalog/`
 - **Full URLs**:
   - List: `http://localhost:8000/api/catalog/variants/`
   - Create: `http://localhost:8000/api/catalog/variants/`
-- **Description**: Manage product variants (price, sku, stock)
+- **Description**: Manage product variants (price, sku). Note: **stock** is now read-only in the API and managed through the `Inventory` model.
 - **Request Body (POST)**:
   ```json
   {
@@ -765,7 +783,6 @@ All endpoints use the base path: `/api/catalog/`
     "sku": "SOFA-RED-L",
     "name": "Red / Large",
     "price": 1299.99,
-    "stock": 50,
     "is_active": true
   }
   ```
@@ -774,7 +791,7 @@ All endpoints use the base path: `/api/catalog/`
   - `image`: optional (blank=True, null=True)
   - `is_active`: optional (defaults to true)
 
- - **Response**: Created variant object
+ - **Response**: Created variant object including `stock` and `available_stock` (read-only from Inventory).
 - **Status**: 200 OK / 201 Created
 
 ---
@@ -850,7 +867,7 @@ Coupons are registered at the top-level `api/` (see main `urls.py`).
     "discount_value": 10.00,
     "min_purchase_amount": 50.00,
     "valid_from": "2025-01-01T00:00:00Z",
-    "valid_until": "2025-12-31T23:59:59Z",
+    "valid_to": "2025-12-31T23:59:59Z",
     "usage_limit": 100,
     "usage_limit_per_user": 1,
     "is_active": true
@@ -895,23 +912,45 @@ Coupons are registered at the top-level `api/` (see main `urls.py`).
 
 Orders and payments are registered at top-level `/api/`.
 
-### 1. **Orders - List / Create**
-- **Endpoint**: `GET /api/orders/` | `POST /api/orders/`
+### 1. **Orders - List / Create / Update Status**
+- **Endpoint**: `GET /api/orders/` | `POST /api/orders/` | `POST /api/orders/{id}/update-status/`
 - **Full URLs**:
-  - List: `http://localhost:8000/api/orders/`
-  - Create: `http://localhost:8000/api/orders/`
-- **Description**: Authenticated users create orders; staff can list all orders. Order creation reserves stock and creates a payment record (COD by default).
-- **Request Body (POST)** (see `OrderCreateSerializer`):
+  - List/Create: `http://localhost:8000/api/orders/`
+  - Update Status: `http://localhost:8000/api/orders/{id}/update-status/`
+- **Description**: Manage user orders. The `update-status` endpoint is restricted to **Admin/Staff** only.
+
+#### 1.1 **Create Order**
+- **Endpoint**: `POST /api/orders/`
+- **Full URL**: `http://localhost:8000/api/orders/`
+- **Request Body**:
   ```json
   {
-    "shipping_address_id": 12,
-    "items": [
-      { "variant_id": 5, "quantity": 2 },
-      { "variant_id": 8, "quantity": 1 }
-    ],
-    "coupon_code": "WELCOME10"
+      "shipping_address_id": 1,
+      "items": [
+          {
+              "variant_id": 10,
+              "quantity": 2
+          }
+      ],
+      "coupon_code": "SUMMER20"
   }
   ```
+
+#### 1.2 **Update Status (Admin Only)**
+- **Endpoint**: `POST /api/orders/{id}/update-status/`
+- **Full URL**: `http://localhost:8000/api/orders/{id}/update-status/`
+- **Authentication**: Required (Staff Bearer Token)
+- **Description**: Update the status of an order. Marking an order as `paid`, `processing`, `shipped`, `delivered`, or `completed` will trigger a stock commitment (moving stock from reserved to sold).
+- **Request Body**:
+  ```json
+  {
+      "status": "paid"
+  }
+  ```
+  **Valid Statuses**: `pending`, `paid`, `processing`, `shipped`, `delivered`, `completed`, `cancelled`, `refunded`.
+
+- **Response**: Updated order object.
+- **Status**: 200 OK
   - `coupon_code`: optional (can be omitted or blank)
 
  - **Response**: Created order JSON (id, user, status, subtotal, shipping_cost, total, items, created_at)

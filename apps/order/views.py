@@ -12,7 +12,7 @@ from .serializers import (
 from apps.accounts.models import ShippingAddress
 from apps.accounts.serializers import ShippingAddressSerializer
 from apps.catalog.services.coupon_service import CouponService
-from .serializers import ApplyCouponSerializer
+from .serializers import ApplyCouponSerializer, OrderStatusUpdateSerializer
 
 class IsOwnerOrAdmin(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -102,6 +102,44 @@ class OrderViewSet(viewsets.ModelViewSet):
         order.save()
 
         return Response({"message": "Order cancelled."}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=["post"], url_path="update-status", permission_classes=[permissions.IsAdminUser])
+    @transaction.atomic
+    def update_status(self, request, pk=None):
+        """
+        Admin-only endpoint to update order status.
+        Handles stock commitment for paid/processing/completed statuses.
+        """
+        order = self.get_object()
+        serializer = OrderStatusUpdateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        new_status = serializer.validated_data["status"]
+        old_status = order.status
+
+        # If status is changing to a "sold" status and it was "pending" (reserved)
+        # then commit the stock.
+        sold_statuses = ["paid", "processing", "shipped", "delivered", "completed"]
+        
+        if new_status in sold_statuses and old_status == "pending":
+            try:
+                order.commit_stock()
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Special case: if moving from "paid/shipped/etc" back to "pending"
+        # we would technically need to revert commit_stock -> reserve_stock
+        # but for now, we'll keep it simple and focus on the forward flow.
+        
+        order.status = new_status
+        order.save()
+
+        # Sync payment status if order is marked as paid
+        if new_status == "paid" and hasattr(order, "payment"):
+            order.payment.status = "success"
+            order.payment.save()
+
+        return Response(OrderSerializer(order).data, status=status.HTTP_200_OK)
 
 class PaymentViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Payment.objects.select_related("order")
