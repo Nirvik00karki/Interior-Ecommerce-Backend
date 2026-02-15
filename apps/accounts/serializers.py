@@ -20,7 +20,6 @@ class ShippingAddressSerializer(serializers.ModelSerializer):
             "state",
             "country",
         ]
-        read_only_fields = ("is_default",)
 
 class ShippingZoneSerializer(serializers.ModelSerializer):
     class Meta:

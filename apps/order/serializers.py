@@ -6,9 +6,12 @@ from decimal import Decimal
 from apps.accounts.serializers import ShippingAddressSerializer
 from apps.catalog.services.coupon_service import CouponService
 from apps.coupons.models import CouponUsage
+from apps.catalog.serializers import ProductSerializer, ProductVariantSerializer
 
 class OrderItemSerializer(serializers.ModelSerializer):
     variant_name = serializers.CharField(source="variant.name", read_only=True)
+    product_details = ProductSerializer(source="variant.product", read_only=True)
+    variant_details = ProductVariantSerializer(source="variant", read_only=True)
 
     class Meta:
         model = OrderItem
@@ -18,6 +21,8 @@ class OrderItemSerializer(serializers.ModelSerializer):
             "variant_name",
             "quantity",
             "price",
+            "product_details",
+            "variant_details",
         ]
 
 class OrderItemCreateSerializer(serializers.Serializer):

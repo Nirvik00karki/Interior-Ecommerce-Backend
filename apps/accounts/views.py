@@ -310,9 +310,15 @@ class ShippingAddressViewSet(viewsets.ModelViewSet):
         return ShippingAddress.objects.filter(user=self.request.user).order_by("-id")
 
     def perform_create(self, serializer):
+        if serializer.validated_data.get('is_default', False):
+            ShippingAddress.objects.filter(user=self.request.user, is_default=True).update(is_default=False)
         serializer.save(user=self.request.user)
 
-    #PATCH method to update shipping address
+    def perform_update(self, serializer):
+        if serializer.validated_data.get('is_default', False):
+            ShippingAddress.objects.filter(user=self.request.user, is_default=True).update(is_default=False)
+        serializer.save()
+
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
         if instance.user != request.user:
@@ -320,10 +326,7 @@ class ShippingAddressViewSet(viewsets.ModelViewSet):
                 {"error": "You are not authorized to update this shipping address."},
                 status=status.HTTP_403_FORBIDDEN
             )
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(serializer.data)
+        return super().partial_update(request, *args, **kwargs)
 
     #DELETE method to delete shipping address
     def destroy(self, request, *args, **kwargs):

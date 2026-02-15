@@ -14,7 +14,7 @@ from .models import (
 class AttributeValueSerializer(serializers.ModelSerializer):
     class Meta:
         model = AttributeValue
-        fields = ["id", "value"]
+        fields = ["id", "attribute", "value"]
 
 
 class AttributeSerializer(serializers.ModelSerializer):

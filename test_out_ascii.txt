@@ -1,0 +1,143 @@
+
+--- GET Categories ---
+Status: 200
+Data: [
+  {
+    "id": 3,
+    "name": "Designer Tables",
+    "slug": "designer-tables",
+    "description": "Elegantly crafted tables that balance form, function, and premium materials.",
+    "image_url": "https://res.cloudinary.com/duy44qfgp/image/upload/v1768897720/yepwwi9blhttwbtvxcms.jpg",
+    "is_active": true
+  },
+  {
+    "id": 1,
+    "name": "Luxury Seating Collection",
+    "slug": "luxury-seating-collection",
+    "description": "Refined seating crafted for comfort, elegance, and modern living.",...
+
+--- POST Category ---
+Status: 201
+Data: {
+  "id": 15,
+  "name": "Test Category Remote",
+  "slug": "test-category-remote",
+  "description": "Testing from script",
+  "image_url": null,
+  "is_active": true
+}...
+
+--- GET Category Detail ---
+Status: 200
+Data: {
+  "id": 15,
+  "name": "Test Category Remote",
+  "slug": "test-category-remote",
+  "description": "Testing from script",
+  "image_url": null,
+  "is_active": true
+}...
+
+--- GET Category by Slug ---
+Status: 200
+Data: {
+  "id": 15,
+  "name": "Test Category Remote",
+  "slug": "test-category-remote",
+  "description": "Testing from script",
+  "image_url": null,
+  "is_active": true
+}...
+
+--- POST Product ---
+Status: 201
+Data: {
+  "id": 28,
+  "name": "Test Product Remote",
+  "slug": "test-product-remote",
+  "description": "Testing product creation",
+  "main_image_url": null,
+  "min_price": null,
+  "max_price": null,
+  "category": 15,
+  "images": [],
+  "variants": [],
+  "is_active": true,
+  "average_rating": 0.0,
+  "review_count": 0
+}...
+
+--- GET Product by Slug ---
+Status: 200
+Data: {
+  "id": 28,
+  "name": "Test Product Remote",
+  "slug": "test-product-remote",
+  "description": "Testing product creation",
+  "main_image_url": null,
+  "min_price": null,
+  "max_price": null,
+  "category": 15,
+  "images": [],
+  "variants": [],
+  "is_active": true,
+  "average_rating": 0.0,
+  "review_count": 0
+}...
+
+--- POST Variant ---
+Status: 201
+Data: {
+  "id": 31,
+  "sku": "TEST-SKU-28",
+  "name": "Standard Variant",
+  "price": "99.99",
+  "stock": 10,
+  "available_stock": 10,
+  "image_url": null,
+  "is_active": true,
+  "attributes": []
+}...
+
+Looking for inventory for newly created variant...
+Found inventory ID: 26
+
+--- PATCH Inventory ---
+Status: 200
+Data: {
+  "id": 26,
+  "variant": 31,
+  "variant_sku": "TEST-SKU-28",
+  "stock": 50,
+  "reserved_stock": 0,
+  "available_stock": 50,
+  "low_stock_threshold": 5,
+  "updated_at": "2026-02-15T14:17:53.621057Z"
+}...
+
+--- POST Attribute ---
+Status: 201
+Data: {
+  "id": 12,
+  "name": "Material",
+  "values": []
+}...
+
+--- POST Attribute Value ---
+Status: 500
+Raw: IntegrityError at /api/catalog/attribute-values/
+null value in column "attribute_id" of relation "catalog_attributevalue" violates not-null constraint
+DETAIL:  Failing row contains (6, Wood, null).
+
+
+Request Method: POST
+Request URL: https://interior-ecommerce-backend.onrender.com/api/catalog/attribute-values/
+Django Version: 4.2.26
+Python Executable: /opt/render/project/src/.venv/bin/python3.13
+Python Version: 3.13.4
+Python Path: ['/opt/render/project/src', '/opt/render/project/src', '/opt/rend
+
+Cleaning up test data...
+Deleted product 28
+Deleted category 15
+Deleted attribute 12
