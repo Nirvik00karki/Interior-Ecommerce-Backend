@@ -1,0 +1,290 @@
+Starting Remote Order API Test
+
+Step 1: Fetching valid shipping address...
+
+--- GET Shipping Addresses ---
+URL: https://interior-ecommerce-backend.onrender.com/api/accounts/shipping-addresses/
+Status: 200
+Data: [
+  {
+    "id": 12,
+    "full_name": "User Name",
+    "phone": "9803904891",
+    "address_line1": "Gatthaghar",
+    "address_line2": "Near Bigmart",
+    "is_default": true,
+    "label": "home",
+    "zone": 1,
+    "state": "Bagmati",
+    "country": "Nepal"
+  }
+]
+Total addresses found: 1
+Address 0: ID=12, Label=home, Zone=1
+Using Address ID: 12 (Zone ID: 1)
+
+Step 2: Fetching valid product variant...
+
+--- GET Variants ---
+URL: https://interior-ecommerce-backend.onrender.com/api/catalog/variants/
+Status: 200
+Data: [
+  {
+    "id": 3,
+    "sku": "DT-AXR-001",
+    "name": "Aurelia Executive \u2013 Walnut Finish",
+    "price": "25000.00",
+    "stock": 100,
+    "available_stock": 97,
+    "image_url": null,
+    "is_active": true,
+    "attributes": []
+  },
+  {
+    "id": 6,
+    "sku": "SS-IMP-101",
+    "name": "Imperial High-Back",
+    "price": "50000.00",
+    "stock": 100,
+    "available_stock": 100,
+    "image_url": null,
+    "is_active": true,
+    "attributes": []
+  },
+  {
+    "id": 8,
+    "sku": "SS-LGC-129",
+    "name": "Legacy Custom Length",
+    "price": "23000.00",
+    "stock": 100,
+    "available_stock": 100,
+    "image_url": null,
+    "is_active": true,
+    "attributes": []
+  },
+  {
+    "id": 1,
+    "sku": "SOFA-RED-LUX",
+    "name": "Queenwood furniture",
+    "price": "70000.00",
+    "stock": 100,
+    "available_stock": 100,
+    "image_url": null,
+    "is_active": true,
+    "attributes": []
+  },
+  {
+    "id": 9,
+    "sku": "xxxxx123",
+    "name": "Monarch Manual Recliner",
+    "price": "40000.00",
+    "stock": 100,
+    "available_stock": 98,
+    "image_url": null,
+    "is_active": true,
+    "attributes": []
+  },
+  {
+    "id": 11,
+    "sku": "DT-NRO-021",
+    "name": "Nero Console \u2013 Ash Wood",
+    "price": "6000.00",
+    "stock": 23,
+    "available_stock": 16,
+    "image_url": null,
+    "is_active": true,
+    "attributes": []
+  },
+  {
+    "id": 7,
+    "sku": "SS-NVA-117",
+    "name": "Nova Velvet Edition",
+    "price": "34000.00",
+    "stock": 0,
+    "available_stock": 0,
+    "image_url": null,
+    "is_active": true,
+    "attributes": []
+  },
+  {
+    "id": 5,
+    "sku": "DT-ORN-014",
+    "name": "Orion Dining \u2013 Solid Wood",
+    "price": "56000.00",
+    "stock": 0,
+    "available_stock": 0,
+    "image_url": null,
+    "is_active": true,
+    "attributes": []
+  },
+  {
+    "id": 4,
+    "sku": "DT-ORN-015",
+    "name": "Aurelia Executive \u2013 Oak Natural",
+    "price": "45000.00",
+    "stock": 0,
+    "available_stock": 0,
+    "image_url": null,
+    "is_active": true,
+
+Using Variant ID: 3 (Stock: 97)
+
+Step 3: Creating a new Order using Address: {
+  "id": 12,
+  "full_name": "User Name",
+  "phone": "9803904891",
+  "address_line1": "Gatthaghar",
+  "address_line2": "Near Bigmart",
+  "is_default": true,
+  "label": "home",
+  "zone": 1,
+  "state": "Bagmati",
+  "country": "Nepal"
+}
+
+Creating a new Order...
+
+--- POST Create Order ---
+URL: https://interior-ecommerce-backend.onrender.com/api/orders/
+Status: 201
+Data: {
+  "id": 16,
+  "user": 9,
+  "status": "pending",
+  "subtotal": "25000.00",
+  "shipping_cost": "100.00",
+  "discount_amount": "0.00",
+  "total": "25100.00",
+  "coupon": null,
+  "shipping_address": {
+    "id": 12,
+    "full_name": "User Name",
+    "phone": "9803904891",
+    "address_line1": "Gatthaghar",
+    "address_line2": "Near Bigmart",
+    "is_default": true,
+    "label": "home",
+    "zone": 1,
+    "state": "Bagmati",
+    "country": "Nepal"
+  },
+  "items": [
+    {
+      "id": 17,
+      "variant": 3,
+      "variant_name": "Aurelia Executive \u2013 Walnut Finish",
+      "quantity": 1,
+      "price": "25000.00",
+      "product_details": {
+        "id": 3,
+        "name": "AURELIA Executive Table",
+        "slug": "aurelia-executive-table",
+        "description": "A refined executive table designed for modern workspaces. Aurelia blends sculptural elegance with functional strength, making it ideal for boardrooms and premium offices.",
+        "main_image_url": "https://res.cloudinary.com/duy44qfgp/image/upload/v1769945083/gpba9rpv2ckpqjsrumde.webp",
+        "min_price": 25000.0,
+        "max_price": 25000.0,
+        "category": 3,
+        "images": [
+          {
+            "id": 3,
+            "image_url": "https://res.cloudinary.com/duy44qfgp/image/upload/v1769945085/wg9zvaauaadvwm0kfhb4.webp",
+            "alt_text": "",
+            "is_featured": false
+          },
+          {
+            "id": 4,
+            "image_url": "https://res.cloudinary.com/duy44qfgp/image/upload/v1769945087/ddrulxwdn6nkzjfghnwf.jpg",
+            "alt_text": "",
+            "is_featured": false
+          }
+        ],
+        "variants": [
+          {
+            "id": 3,
+            "sku": "DT-AXR-001",
+            "name": "Aurelia Executive \u2013 Walnut Finish",
+            "price": "25000.00",
+            "stock": 100,
+            "available_stock": 96,
+            "image_url": null,
+            "is_active": true,
+            "attributes": []
+          }
+        ],
+        "is_active"
+
+Step 4: Listing user orders...
+
+--- GET Orders List ---
+URL: https://interior-ecommerce-backend.onrender.com/api/orders/
+Status: 200
+Data: [
+  {
+    "id": 16,
+    "user": 9,
+    "status": "pending",
+    "subtotal": "25000.00",
+    "shipping_cost": "100.00",
+    "discount_amount": "0.00",
+    "total": "25100.00",
+    "coupon": null,
+    "shipping_address": {
+      "id": 12,
+      "full_name": "User Name",
+      "phone": "9803904891",
+      "address_line1": "Gatthaghar",
+      "address_line2": "Near Bigmart",
+      "is_default": true,
+      "label": "home",
+      "zone": 1,
+      "state": "Bagmati",
+      "country": "Nepal"
+    },
+    "items": [
+      {
+        "id": 17,
+        "variant": 3,
+        "variant_name": "Aurelia Executive \u2013 Walnut Finish",
+        "quantity": 1,
+        "price": "25000.00",
+        "product_details": {
+          "id": 3,
+          "name": "AURELIA Executive Table",
+          "slug": "aurelia-executive-table",
+          "description": "A refined executive table designed for modern workspaces. Aurelia blends sculptural elegance with functional strength, making it ideal for boardrooms and premium offices.",
+          "main_image_url": "https://res.cloudinary.com/duy44qfgp/image/upload/v1769945083/gpba9rpv2ckpqjsrumde.webp",
+          "min_price": 25000.0,
+          "max_price": 25000.0,
+          "category": 3,
+          "images": [
+            {
+              "id": 3,
+              "image_url": "https://res.cloudinary.com/duy44qfgp/image/upload/v1769945085/wg9zvaauaadvwm0kfhb4.webp",
+              "alt_text": "",
+              "is_featured": false
+            },
+            {
+              "id": 4,
+              "image_url": "https://res.cloudinary.com/duy44qfgp/image/upload/v1769945087/ddrulxwdn6nkzjfghnwf.jpg",
+              "alt_text": "",
+              "is_featured": false
+            }
+          ],
+          "variants": [
+            {
+              "id": 3,
+              "sku": "DT-AXR-001",
+              "name": "Aurelia Executive \u2013 Walnut Finish",
+              "price": "25000.00",
+              "stock": 100,
+              "available_stock": 96,
+             
+
+Step 5: Cancelling test order 16...
+
+--- POST Cancel Order ---
+URL: https://interior-ecommerce-backend.onrender.com/api/orders/16/cancel/
+Status: 200
+Data: {
+  "message": "Order cancelled."
+}

@@ -82,8 +82,8 @@ class ShippingAddress(models.Model):
     zone = models.ForeignKey(
         "ShippingZone",
         on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
+        null=True, # Keeping null=True for SET_NULL but making it required in forms/serializers
+        blank=False,
         related_name="shipping_addresses"
     )
     state = models.CharField(max_length=100)

@@ -99,7 +99,7 @@ class OrderCreateSerializer(serializers.Serializer):
 
         # Determine shipping cost from zone
         if not shipping_address.zone:
-            raise serializers.ValidationError("Shipping zone not set for this address.")
+            raise serializers.ValidationError(f"Shipping zone not set for address {shipping_address.id}. (zone_id: {shipping_address.zone_id})")
 
         data["shipping_cost"] = Decimal(str(shipping_address.zone.cost))
 

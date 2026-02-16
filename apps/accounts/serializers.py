@@ -20,6 +20,9 @@ class ShippingAddressSerializer(serializers.ModelSerializer):
             "state",
             "country",
         ]
+        extra_kwargs = {
+            "zone": {"required": True, "allow_null": False}
+        }
 
 class ShippingZoneSerializer(serializers.ModelSerializer):
     class Meta:
