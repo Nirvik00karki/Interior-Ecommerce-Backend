@@ -121,15 +121,31 @@ class OrderViewSet(viewsets.ModelViewSet):
         # then commit the stock.
         sold_statuses = ["paid", "processing", "shipped", "delivered", "completed"]
         
+        # 1. Commit Stock: pending -> paid/processing/etc.
         if new_status in sold_statuses and old_status == "pending":
             try:
                 order.commit_stock()
             except Exception as e:
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
+        # 2. Restore Stock: paid/processing/etc. -> refunded/cancelled
+        elif (new_status in ["refunded", "cancelled"]) and (old_status in sold_statuses):
+            try:
+                order.restore_stock()
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 3. Release Stock: pending -> cancelled
+        elif new_status == "cancelled" and old_status == "pending":
+            try:
+                order.release_stock()
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
         # Special case: if moving from "paid/shipped/etc" back to "pending"
         # we would technically need to revert commit_stock -> reserve_stock
         # but for now, we'll keep it simple and focus on the forward flow.
+
         
         order.status = new_status
         order.save()

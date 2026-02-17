@@ -29,12 +29,33 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
     ordering_fields = ["created_at", "status", "total"]
 
     @action(detail=True, methods=["post"])
+    @transaction.atomic
     def update_status(self, request, pk=None):
         order = self.get_object()
         new_status = request.data.get("status")
+        old_status = order.status
 
-        if new_status not in ["processing", "shipped", "completed", "cancelled", "refunded"]:
+        # Define statuses that imply stock commitment
+        sold_statuses = ["paid", "processing", "shipped", "delivered", "completed"]
+
+        if new_status not in ["pending", "paid", "processing", "shipped", "delivered", "completed", "cancelled", "refunded"]:
             return Response({"error": "Invalid status"}, status=400)
+
+        # Handle stock transitions
+        try:
+            # 1. Commit Stock: pending -> paid/processing/etc.
+            if new_status in sold_statuses and old_status == "pending":
+                order.commit_stock()
+            
+            # 2. Restore Stock: paid/processing/etc. -> refunded/cancelled
+            elif (new_status in ["refunded", "cancelled"]) and (old_status in sold_statuses):
+                order.restore_stock()
+
+            # 3. Release Stock: pending -> cancelled
+            elif new_status == "cancelled" and old_status == "pending":
+                order.release_stock()
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
 
         order.status = new_status
         order.save()
@@ -60,7 +81,9 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
             return Response({"error": "Only shipped orders can be completed"}, status=400)
 
         order.status = "completed"
-        order.commit_stock()
+        # Note: commit_stock might have already been called when status moved to 'paid' or 'processing'
+        # but commit_stock should ideally be idempotent if we add the check.
+        # However, for consistency with OrderViewSet, we'll let the logic above handle it.
         order.save()
 
         return Response({"message": "Order marked as completed"})
@@ -70,17 +93,17 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
     def refund(self, request, pk=None):
         order = self.get_object()
 
-        if order.status not in ["completed", "shipped"]:
-            return Response({"error": "Only shipped or completed orders can be refunded"}, status=400)
+        if order.status not in ["completed", "shipped", "delivered", "paid", "processing"]:
+            return Response({"error": "Only paid or shipped orders can be refunded"}, status=400)
 
-        # Restore inventory for all items with locking
-        for item in order.items.all():
-            from apps.catalog.models import Inventory
-            inv = Inventory.objects.select_for_update().get(variant=item.variant)
-            inv.stock += item.quantity
-            inv.save()
+        # Restore inventory using centralized method
+        try:
+            order.restore_stock()
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
 
         order.status = "refunded"
         order.save()
 
         return Response({"message": "Order refunded and inventory restored"})
+

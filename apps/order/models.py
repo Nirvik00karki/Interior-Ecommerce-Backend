@@ -110,6 +110,26 @@ class Order(models.Model):
             inventory.stock -= item.quantity
             inventory.save()
 
+    @transaction.atomic
+    def restore_stock(self):
+        """
+        Return committed stock back to inventory (e.g., on refund).
+        """
+        # Idempotency check - if already refunded, don't restore again
+        # However, status update happens AFTER this call in the view usually.
+        # So we trust the view logic to only call this once.
+        
+        for item in self.items.all():
+            inventory = (
+                Inventory.objects
+                .select_for_update()
+                .get(variant=item.variant)
+            )
+
+            inventory.stock += item.quantity
+            inventory.save()
+
+
 
     def __str__(self):
         return f"Order {self.id} - {self.user}"
