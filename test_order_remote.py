@@ -2,7 +2,7 @@ import requests
 import json
 
 BASE_URL = "https://interior-ecommerce-backend.onrender.com/api"
-ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcxMjM3NDMzLCJpYXQiOjE3NzEyMzY1MzMsImp0aSI6ImY4ZGIyZmI5M2E1MzRhNmU5MDhmODM5NmYyMDcwNzJmIiwidXNlcl9pZCI6IjkiLCJlbWFpbCI6ImdhcmFnZTg5MDhAbmV3dHJlYS5jb20ifQ.Nd_jzRbVYc-LBbyB-PvjJrxL_kdRgMhfJchiWHSrO-A"
+ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcxMjQwNDI5LCJpYXQiOjE3NzEyMzk1MjksImp0aSI6ImFhYzU0NjM4Njk0ODQ0NzhiOTJjZGIwMTYwOTkwYTIxIiwidXNlcl9pZCI6IjkiLCJlbWFpbCI6ImdhcmFnZTg5MDhAbmV3dHJlYS5jb20ifQ.i3azJpZl9aENjwIVH6N8-DhFD-gBx_kr-14L_H7AUWk"
 
 headers = {
     "Authorization": f"Bearer {ACCESS_TOKEN}",
@@ -37,29 +37,29 @@ def test_order_apis():
     with open(LOG_FILE, "w", encoding="utf-8") as f:
         f.write("Starting Remote Order API Test\n")
 
-    # 1. Fetch prerequisite: Shipping Address
-    log_to_file("\nStep 1: Fetching valid shipping address...")
+    # 1. Fetch prerequisite: Shipping Address and Zones
+    log_to_file("\nStep 1: Checking Addresses and Zones consistency...")
+    
+    zones_res = requests.get(f"{BASE_URL}/accounts/shipping-zones/", headers=headers)
+    zones = log_res("GET Shipping Zones", zones_res)
+    zone_ids = [z['id'] for z in zones] if zones else []
+    log_to_file(f"Available Zone IDs on server: {zone_ids}")
+
     addr_res = requests.get(f"{BASE_URL}/accounts/shipping-addresses/", headers=headers)
     addresses = log_res("GET Shipping Addresses", addr_res)
     
     if not addresses or len(addresses) == 0:
-        log_to_file("Error: No shipping addresses found for this account. Create one first.")
+        log_to_file("Error: No shipping addresses found.")
         return
     
-    log_to_file(f"Total addresses found: {len(addresses)}")
     for i, addr in enumerate(addresses):
-        log_to_file(f"Address {i}: ID={addr['id']}, Label={addr['label']}, Zone={addr.get('zone')}")
+        z_id = addr.get('zone')
+        is_valid = z_id in zone_ids
+        log_to_file(f"Address {i}: ID={addr['id']}, ZoneID={z_id}, Is Valid Zone={is_valid}")
 
-    # For debugging, we use the first address
     address = addresses[0]
-    
-    # --- AUTO-FIX DISABLED FOR DEBUGGING ---
-    # if not address.get('zone'):
-    #     log_to_file("Address has no zone. (Auto-fix disabled for debugging)")
-    # --------------------------------------
-
     address_id = address['id']
-    log_to_file(f"Using Address ID: {address_id} (Zone ID: {address.get('zone')})")
+    log_to_file(f"Using Address ID: {address_id} for order creation.")
 
     # 2. Fetch prerequisite: Product Variant with stock
     log_to_file("\nStep 2: Fetching valid product variant...")

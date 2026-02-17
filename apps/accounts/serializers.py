@@ -80,12 +80,18 @@ class UserSerializer(serializers.ModelSerializer):
         profile_picture = validated_data.pop("profile_picture", None)
         address_data = validated_data.pop("address", None)
         
+        # Check if names are being updated
+        first_name = validated_data.get("first_name")
+        last_name = validated_data.get("last_name")
+        name_updated = first_name is not None or last_name is not None
+
         # Now update the user with remaining fields
         user = super().update(instance, validated_data)
         
         # Handle address update/creation
+        address = instance.shipping_addresses.filter(is_default=True).first()
+        
         if address_data:
-            address = instance.shipping_addresses.filter(is_default=True).first()
             if address:
                 # Update existing default address
                 for attr, value in address_data.items():
@@ -98,6 +104,12 @@ class UserSerializer(serializers.ModelSerializer):
                     is_default=True,
                     **address_data
                 )
+        elif name_updated and address:
+            # Sync name to address if User names changed but no explicit address data provided
+            new_first_name = first_name if first_name is not None else instance.first_name
+            new_last_name = last_name if last_name is not None else instance.last_name
+            address.full_name = f"{new_first_name} {new_last_name}".strip()
+            address.save()
         
         # Handle password and profile picture (batch updates)
         needs_save = False

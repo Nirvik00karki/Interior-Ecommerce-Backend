@@ -103,7 +103,7 @@ class OrderViewSet(viewsets.ModelViewSet):
 
         return Response({"message": "Order cancelled."}, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=["post"], url_path="update-status", permission_classes=[permissions.IsAdminUser])
+    @action(detail=True, methods=["post", "patch"], url_path="update-status", permission_classes=[permissions.IsAdminUser])
     @transaction.atomic
     def update_status(self, request, pk=None):
         """
