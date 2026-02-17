@@ -19,7 +19,9 @@ urlpatterns = [
     path("password-reset/validate/", PasswordResetValidateView.as_view(), name="password_reset_validate"),
     path("password-reset/complete/", PasswordResetCompleteView.as_view(), name="password_reset_complete"),
     path("shipping-addresses/", ShippingAddressViewSet.as_view({'get': 'list', 'post': 'create'}), name="shipping_addresses"),
-    path("shipping-addresses/<int:pk>/", ShippingAddressViewSet.as_view({'patch': 'partial_update', 'delete': 'destroy'}), name="shipping_address_detail"),
+    path("shipping-addresses/<int:pk>/", ShippingAddressViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name="shipping_address_detail"),
     path("shipping-zones/", ShippingZoneViewSet.as_view({'get': 'list', 'post': 'create'}), name="shipping_zones"),
+    path("shipping-zones/<int:pk>/", ShippingZoneViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name="shipping_zone_detail"),
+
     path("shipping-cost/", ShippingZoneViewSet.as_view({'get': 'user_shipping_cost'}), name="shipping_cost"),
 ]
