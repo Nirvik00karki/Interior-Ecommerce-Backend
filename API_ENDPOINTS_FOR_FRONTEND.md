@@ -243,9 +243,9 @@ All endpoints use the base path: `/api/accounts/`
 ### 11. **Shipping & Addresses**
 All endpoints use the base path: `/api/accounts/`
 
-#### 11.1 **List / Create Shipping Addresses**
-- **Endpoint**: `GET /api/accounts/shipping-addresses/` | `POST /api/accounts/shipping-addresses/`
-- **Description**: Manage user's saved shipping addresses.
+#### 11.1 **List / Create / Update Default Shipping Address**
+- **Endpoint**: `GET /api/accounts/shipping-addresses/` | `POST /api/accounts/shipping-addresses/` | `PATCH /api/accounts/shipping-addresses/`
+- **Description**: Manage user's saved shipping addresses. `PATCH` on this endpoint updates the user's **default** shipping address.
 - **Request Body (POST)**:
   ```json
   {
@@ -262,7 +262,14 @@ All endpoints use the base path: `/api/accounts/`
 - **Response**: List of addresses or created address object.
 - **Status**: 200 OK / 201 Created
 
-#### 11.2 **Get Shipping Cost**
+#### 11.2 **Retrieve / Update / Delete Shipping Address**
+- **Endpoint**: `GET /api/accounts/shipping-addresses/{id}/` | `PUT /api/accounts/shipping-addresses/{id}/` | `PATCH /api/accounts/shipping-addresses/{id}/` | `DELETE /api/accounts/shipping-addresses/{id}/`
+- **Description**: Manage a specific shipping address by ID.
+- **Request Body (PUT/PATCH)**: Same fields as POST.
+- **Response**: The updated address object or success message.
+- **Status**: 200 OK / 204 No Content (Delete)
+
+#### 11.3 **Get Shipping Cost**
 - **Endpoint**: `GET /api/accounts/shipping-cost/`
 - **Description**: Calculate shipping cost based on the user's primary (latest) address.
 - **Response**:
