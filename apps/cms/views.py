@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.parsers import MultiPartParser, FormParser
 from .models import Page, HeroSlide, Methodology, FAQ
 from .serializers import PageSerializer, HeroSlideSerializer, MethodologySerializer, FAQSerializer
+from apps.accounts.permissions import IsAdminOrReadOnly
 
 CACHE_TIME = 300
 
@@ -15,8 +16,8 @@ CACHE_TIME = 300
 class PageViewSet(viewsets.ModelViewSet):
     queryset = Page.objects.all()
     serializer_class = PageSerializer
-    # Pages are publicly readable; editing requires authentication
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]    
+    # Pages are publicly readable; editing requires admin authentication
+    permission_classes = [IsAdminOrReadOnly]    
 
     @action(detail=False, methods=["get"], url_path="slug/(?P<slug>[^/.]+)")
     def retrieve_by_slug(self, request, slug=None):
@@ -29,7 +30,7 @@ class PageViewSet(viewsets.ModelViewSet):
 class HeroSlideViewSet(viewsets.ModelViewSet):
     queryset = HeroSlide.objects.all().order_by("order")
     serializer_class = HeroSlideSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
     parser_classes = [MultiPartParser, FormParser]
     
 
@@ -37,7 +38,7 @@ class HeroSlideViewSet(viewsets.ModelViewSet):
 class MethodologyViewSet(viewsets.ModelViewSet):
     queryset = Methodology.objects.all().order_by("order")
     serializer_class = MethodologySerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
     parser_classes = [MultiPartParser, FormParser]
     
 
@@ -45,4 +46,4 @@ class MethodologyViewSet(viewsets.ModelViewSet):
 class FAQViewSet(viewsets.ModelViewSet):
     queryset = FAQ.objects.all().order_by("order")
     serializer_class = FAQSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]

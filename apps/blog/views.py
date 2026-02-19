@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404
 
 from .models import BlogCategory, BlogPost
 from .serializers import BlogCategorySerializer, BlogPostSerializer
+from apps.accounts.permissions import IsAdminOrReadOnly
 from rest_framework.parsers import MultiPartParser, FormParser
 
 CACHE_TIME = 60 * 5
@@ -16,8 +17,8 @@ CACHE_TIME = 60 * 5
 class BlogCategoryViewSet(viewsets.ModelViewSet):
     queryset = BlogCategory.objects.all()
     serializer_class = BlogCategorySerializer
-    # Allow anyone to list/retrieve categories, require auth for create/update/delete
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]    
+    # Allow anyone to list/retrieve categories, require admin auth for create/update/delete
+    permission_classes = [IsAdminOrReadOnly]    
 
     @action(detail=False, methods=["get"], url_path="slug/(?P<slug>[^/.]+)")
     def retrieve_by_slug(self, request, slug=None):
@@ -30,7 +31,7 @@ class BlogCategoryViewSet(viewsets.ModelViewSet):
 class BlogPostViewSet(viewsets.ModelViewSet):
     queryset = BlogPost.objects.select_related("blogpost_user", "blog_category").order_by("-date")
     serializer_class = BlogPostSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
     parser_classes = [MultiPartParser, FormParser]
 
     @transaction.atomic

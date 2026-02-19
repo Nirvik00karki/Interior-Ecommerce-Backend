@@ -136,6 +136,8 @@ class GoogleAuthView(APIView):
                     "first_name": user.first_name,
                     "last_name": user.last_name,
                     "avatar": user.avatar,
+                    "is_staff": user.is_staff,
+                    "is_superuser": user.is_superuser,
                 },
                 "tokens": {
                     "access": str(refresh.access_token),
@@ -342,7 +344,7 @@ class ShippingAddressViewSet(viewsets.ModelViewSet):
 class ShippingZoneViewSet(viewsets.ModelViewSet):
     queryset = ShippingZone.objects.all()
     serializer_class = ShippingZoneSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [IsAdminOrReadOnly]
 
     @action(detail=False, methods=["GET"], permission_classes=[permissions.IsAuthenticated])
     def user_shipping_cost(self, request):

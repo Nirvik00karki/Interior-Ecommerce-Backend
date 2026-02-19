@@ -17,3 +17,11 @@ class IsAdminOrSuperUser(BasePermission):
 
     def has_permission(self, request, view):
         return bool(request.user and (request.user.is_superuser or request.user.is_staff))
+
+class IsSuperUserOnly(BasePermission):
+    """
+    Allows access only to Superadmin users (is_superuser=True).
+    is_staff users are NOT allowed unless they are also is_superuser.
+    """
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.is_superuser)

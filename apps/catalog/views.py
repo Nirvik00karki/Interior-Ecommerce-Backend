@@ -84,12 +84,14 @@ class ProductImageViewSet(viewsets.ModelViewSet):
 class AttributeViewSet(viewsets.ModelViewSet):
     queryset = Attribute.objects.all()
     serializer_class = AttributeSerializer
+    permission_classes = [IsAdminOrReadOnly]
     parser_classes = [JSONParser, FormParser, MultiPartParser]
 
 # AttributeValue API
 class AttributeValueViewSet(viewsets.ModelViewSet):
     queryset = AttributeValue.objects.all()
     serializer_class = AttributeValueSerializer
+    permission_classes = [IsAdminOrReadOnly]
     parser_classes = [JSONParser, FormParser, MultiPartParser]
     
 # -------------------

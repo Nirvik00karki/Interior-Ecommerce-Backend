@@ -40,10 +40,10 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             "id", "email", "first_name", "last_name", "full_name","phone",
-            "password", "google_id", "avatar", "is_staff", "profile_picture", "profile_picture_url",
+            "password", "google_id", "avatar", "is_staff", "is_superuser", "profile_picture", "profile_picture_url",
             "default_address", "address"
         ]
-        read_only_fields = ("is_staff", "google_id", "avatar", "profile_picture_url")
+        read_only_fields = ("is_staff", "is_superuser", "google_id", "avatar", "profile_picture_url")
 
     def get_full_name(self, obj):
         return f"{obj.first_name} {obj.last_name}".strip()
@@ -130,6 +130,8 @@ class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
     def get_token(cls, user):
         token = super().get_token(user)
         token["email"] = user.email
+        token["is_staff"] = user.is_staff
+        token["is_superuser"] = user.is_superuser
         return token
 
     def validate(self, attrs):
@@ -139,7 +141,19 @@ class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
         # Convert "username" to email for JWT
         attrs["username"] = email
 
-        return super().validate(attrs)
+        data = super().validate(attrs)
+        
+        # Add user info to response body
+        data["user"] = {
+            "id": self.user.id,
+            "email": self.user.email,
+            "is_staff": self.user.is_staff,
+            "is_superuser": self.user.is_superuser,
+            "first_name": self.user.first_name,
+            "last_name": self.user.last_name,
+        }
+        
+        return data
 
 class AdminCreateUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)

@@ -18,5 +18,12 @@ class ReviewViewSet(viewsets.ModelViewSet):
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated()]
 
+    def get_queryset(self):
+        if self.action in ["update", "partial_update", "destroy"]:
+            if self.request.user.is_staff:
+                return Review.objects.all()
+            return Review.objects.filter(user=self.request.user)
+        return super().get_queryset()
+
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
