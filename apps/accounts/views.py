@@ -19,7 +19,7 @@ from .email import send_verification_email
 from .email import send_password_reset_email
 from .utils import password_reset_token
 from .models import ShippingAddress, ShippingZone
-from .permissions import IsAdminOrSuperUser
+from .permissions import IsAdminOrSuperUser, IsAdminOrReadOnly
 
 User = get_user_model()
 
