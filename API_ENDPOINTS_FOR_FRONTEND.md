@@ -298,6 +298,36 @@ All endpoints use the base path: `/api/accounts/`
 - **Response**: List of zones or created zone object.
 - **Status**: 200 OK / 201 Created
 
+
+---
+
+### 12. **Admin: Create Staff User**
+- **Endpoint**: `POST /api/accounts/admin/users/create/`
+- **Full URL**: `http://localhost:8000/api/accounts/admin/users/create/`
+- **Description**: Create a new staff user account (Admin/Superuser only).
+- **Authentication**: Required (Staff/Admin token)
+- **Request Body**:
+  ```json
+  {
+    "email": "staff@example.com",
+    "password": "securepassword123",
+    "first_name": "Staff",
+    "last_name": "User"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "id": 2,
+    "email": "staff@example.com",
+    "first_name": "Staff",
+    "last_name": "User",
+    "is_superuser": false,
+    "is_staff": true
+  }
+  ```
+- **Status**: 201 Created
+
 ---
 
 ## Blog Endpoints
@@ -803,25 +833,76 @@ All endpoints use the base path: `/api/catalog/`
 
 ---
 
-### 5. **Attributes - List / Create**
+### 5. **Attributes - Define Global Characteristics**
 - **Endpoint**: `GET /api/catalog/attributes/` | `POST /api/catalog/attributes/`
 - **Full URLs**:
-  - List: `http://localhost:8000/api/catalog/attributes/`
-  - Create: `http://localhost:8000/api/catalog/attributes/`
-- **Description**: Manage attribute definitions (e.g., Color, Size) and attribute values
-- **Request Body (POST)** (attribute):
+  - Local: `http://localhost:8000/api/catalog/attributes/`
+  - Production: `https://interior-ecommerce-backend.onrender.com/api/catalog/attributes/`
+- **Description**: Define top-level attribute categories like "Color", "Size", "Material", etc.
+- **Request Body (POST)**:
   ```json
-  { "name": "Color" }
+  {
+    "name": "Color"
+  }
   ```
-- **Request Body (POST)** (attribute value):
+- **Response**: `201 Created`
   ```json
-  { "attribute": 1, "value": "Red" }
+  {
+    "id": 1,
+    "name": "Color",
+    "values": []
+  }
   ```
-  
-  Optional / nullable fields (not required):
-  - Attribute: none (name required)
-  - AttributeValue: none (both fields required)
-- **Status**: 200 OK / 201 Created
+
+---
+
+### 5.1 **Attribute Values - Define Options for Attributes**
+- **Endpoint**: `GET /api/catalog/attribute-values/` | `POST /api/catalog/attribute-values/`
+- **Full URLs**:
+  - Local: `http://localhost:8000/api/catalog/attribute-values/`
+  - Production: `https://interior-ecommerce-backend.onrender.com/api/catalog/attribute-values/`
+- **Description**: Define specific values for a global attribute (e.g., "Red" or "Blue" for "Color").
+- **Request Body (POST)**:
+  ```json
+  {
+    "attribute": 1, 
+    "value": "Red"
+  }
+  ```
+  - `attribute`: ID of the parent Attribute category.
+  - `value`: The actual value string.
+- **Status**: 201 Created
+
+---
+
+### 5.2 **Variant Attributes - Assign Values to Specific Variants**
+- **Endpoint**: `GET /api/catalog/variant-attributes/` | `POST /api/catalog/variant-attributes/`
+- **Full URLs**:
+  - Local: `http://localhost:8000/api/catalog/variant-attributes/`
+  - Production: `https://interior-ecommerce-backend.onrender.com/api/catalog/variant-attributes/`
+- **Description**: Map specific attribute values to a product variant. Use this to specify that a particular variant is "Red" or "Large".
+- **Request Body (POST)**:
+  ```json
+  {
+    "variant": 10,
+    "attribute": 1,
+    "value": 5
+  }
+  ```
+- **Fields**:
+  - `variant`: ID of the Product Variant.
+  - `attribute`: ID of the Attribute (e.g., Color).
+  - `value`: ID of the Attribute Value (e.g., Red).
+- **Response**:
+  ```json
+  {
+    "variant": 10,
+    "attribute": 1,
+    "attribute_name": "Color",
+    "value": 5,
+    "value_display": "Red"
+  }
+  ```
 
 ---
 

@@ -67,7 +67,7 @@ class ProductVariantAttributeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductVariantAttribute
-        fields = ["attribute", "attribute_name", "value", "value_display"]
+        fields = ["variant", "attribute", "attribute_name", "value", "value_display"]
 
 
 # ---------------------------------------------------------
