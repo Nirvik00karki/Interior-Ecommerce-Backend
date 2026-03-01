@@ -7,7 +7,7 @@ from .serializers import UserSerializer
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import (EmailTokenObtainPairSerializer, ShippingAddressSerializer
-                          , ShippingZoneSerializer, AdminCreateUserSerializer)
+                          , ShippingZoneSerializer, AdminCreateUserSerializer, AdminUserSerializer)
 from rest_framework.views import APIView
 from django.conf import settings
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -397,3 +397,23 @@ class AdminUserCreateView(generics.CreateAPIView):
 
     def get_queryset(self):
         return User.objects.none()
+
+class AdminUserListView(generics.ListAPIView):
+    queryset = User.objects.all().order_by("-id")
+    serializer_class = AdminUserSerializer
+    permission_classes = [IsAdminOrSuperUser]
+
+class AdminUserDetailView(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = AdminUserSerializer
+    permission_classes = [IsAdminOrSuperUser]
+
+class AdminUserUpdateView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = AdminUserSerializer
+    permission_classes = [IsAdminOrSuperUser]
+
+class AdminUserDeleteView(generics.DestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = AdminUserSerializer
+    permission_classes = [IsAdminOrSuperUser]

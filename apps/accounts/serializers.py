@@ -181,3 +181,13 @@ class AdminCreateUserSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
         return user
+
+
+class AdminUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "id", "email", "first_name", "last_name", "phone", 
+            "is_staff", "is_superuser", "is_active", "date_joined"
+        ]
+        read_only_fields = ["id", "date_joined"]

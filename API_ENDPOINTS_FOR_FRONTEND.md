@@ -301,11 +301,34 @@ All endpoints use the base path: `/api/accounts/`
 
 ---
 
-### 12. **Admin: Create Staff User**
-- **Endpoint**: `POST /api/accounts/admin/users/create/`
-- **Full URL**: `http://localhost:8000/api/accounts/admin/users/create/`
-- **Description**: Create a new staff user account (Admin/Superuser only).
+### 12. **Admin: User Management**
+All endpoints use the base path: `/api/accounts/admin/users/`
+
+#### 12.1 **List Users**
+- **Endpoint**: `GET /api/accounts/admin/users/`
+- **Description**: List all users in the system (Admin/Superuser only).
 - **Authentication**: Required (Staff/Admin token)
+- **Response**: List of user objects
+  ```json
+  [
+    {
+      "id": 1,
+      "email": "admin@example.com",
+      "first_name": "Admin",
+      "last_name": "User",
+      "phone": "9800000000",
+      "is_staff": true,
+      "is_superuser": true,
+      "is_active": true,
+      "date_joined": "2024-01-01T12:00:00Z"
+    }
+  ]
+  ```
+- **Status**: 200 OK
+
+#### 12.2 **Create Staff User**
+- **Endpoint**: `POST /api/accounts/admin/users/create/`
+- **Description**: Create a new staff user account.
 - **Request Body**:
   ```json
   {
@@ -315,18 +338,26 @@ All endpoints use the base path: `/api/accounts/`
     "last_name": "User"
   }
   ```
-- **Response**:
-  ```json
-  {
-    "id": 2,
-    "email": "staff@example.com",
-    "first_name": "Staff",
-    "last_name": "User",
-    "is_superuser": false,
-    "is_staff": true
-  }
-  ```
+- **Response**: Created user object
 - **Status**: 201 Created
+
+#### 12.3 **Retrieve User Detail**
+- **Endpoint**: `GET /api/accounts/admin/users/{id}/`
+- **Description**: Get detailed information about a specific user.
+- **Response**: User object (same fields as List)
+- **Status**: 200 OK
+
+#### 12.4 **Update User**
+- **Endpoint**: `PATCH /api/accounts/admin/users/{id}/update/`
+- **Description**: Update a user's information (Admin/Superuser only).
+- **Request Body**: Partial updates allowed (first_name, last_name, phone, is_staff, is_active, etc.)
+- **Response**: Updated user object
+- **Status**: 200 OK
+
+#### 12.5 **Delete User**
+- **Endpoint**: `DELETE /api/accounts/admin/users/{id}/delete/`
+- **Description**: Delete a user account.
+- **Status**: 204 No Content
 
 ---
 
